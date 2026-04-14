@@ -153,7 +153,7 @@ Raw PDFs are stored locally under `data/raw/` and are **not tracked** in version
 **Agatha** — Data Scientist Research Assistant, Bank Indonesia Institute (BINS)  
 M.Sc. Data Science, Universitas Indonesia | AI/ML Engineering, Pacmann  
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin)](https://linkedin.com/in/your-profile)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin)](https://www.linkedin.com/in/agatha-silalahi-722507215/)
 [![GitHub](https://img.shields.io/badge/GitHub-Follow-black?logo=github)](https://github.com/Agathahah)
 
 ---
