@@ -1,0 +1,54 @@
+# ============================================================
+# FinSight IDX — Requirements
+# Python 3.10+
+# ============================================================
+
+# --- Core ---
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# --- Claude API ---
+anthropic>=0.40.0
+
+# --- MCP Server ---
+fastmcp>=0.4.0
+
+# --- PDF Processing ---
+pdfplumber>=0.10.3
+PyMuPDF>=1.23.0          # fitz — fast PDF rendering & extraction
+
+# --- NLP & Embeddings ---
+transformers>=4.38.0
+sentence-transformers>=2.5.0
+torch>=2.2.0
+tokenizers>=0.15.0
+
+# --- Topic Modeling ---
+bertopic>=0.16.0
+umap-learn>=0.5.6
+hdbscan>=0.8.33
+scikit-learn>=1.4.0
+
+# --- Vector Store ---
+chromadb>=0.4.22
+
+# --- Data Processing ---
+pandas>=2.2.0
+numpy>=1.26.0
+
+# --- Utilities ---
+tqdm>=4.66.0
+loguru>=0.7.2
+tenacity>=8.2.3           # retry logic for API calls
+httpx>=0.26.0
+
+# --- Development & Testing ---
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+black>=24.1.0
+ruff>=0.2.0
+mypy>=1.8.0
+ipykernel>=6.29.0
+jupyterlab>=4.1.0
