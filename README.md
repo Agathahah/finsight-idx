@@ -1,90 +1,115 @@
 # FinSight IDX 🔍📊
 
-> **Financial NLP Intelligence Platform** — AI-powered analysis of IDX annual reports and Indonesian financial news using Claude API, RAG pipelines, and MCP server integration.
+> **Financial NLP Intelligence Platform** — AI-powered analysis of IDX annual reports
+> and Indonesian financial news using Claude API, RAG pipelines, and MCP server integration.
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://www.python.org/)
-[![Claude API](https://img.shields.io/badge/Claude-Anthropic-orange)](https://www.anthropic.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Claude API](https://img.shields.io/badge/Claude_API-Anthropic-D97706)](https://www.anthropic.com/)
+[![FastMCP](https://img.shields.io/badge/FastMCP-MCP_Server-6366F1)](https://gofastmcp.com/)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-22C55E)](https://docs.trychroma.com/)
+[![Tests](https://img.shields.io/badge/Tests-143_passed-22C55E)](tests/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Agathahah/finsight-idx/blob/main/notebooks/demo_finsight.ipynb)
 
 ---
 
 ## 🎯 Project Overview
 
-FinSight IDX is an end-to-end **NLP intelligence platform** built for Indonesian capital markets (IDX). It processes PDF annual reports and financial news using a modern AI stack: Claude API for summarization and structured extraction, BERTopic for financial topic modeling, ChromaDB for semantic search, and FastMCP for exposing FinSight tools as a Model Context Protocol server.
+FinSight IDX is an **end-to-end NLP intelligence platform** for Indonesian capital markets (IDX/BEI). It automates the full financial analysis workflow — from raw PDF ingestion to an agentic MCP-powered analyst — using a production-grade AI stack.
 
-**Primary goal:** Production-quality AI/ML engineering portfolio demonstrating the full lifecycle — from raw PDF ingestion to an agentic MCP workflow — validated on real IDX financial data.
-
----
-
-## ✨ Key Features
-
-| Module | Description |
-|--------|-------------|
-| 📄 **Document Summarization** | Multi-level summarization of IDX annual reports with Claude API |
-| 🏷️ **Topic Modeling** | BERTopic + sentence-transformers on Indonesian financial news |
-| 🔍 **RAG Pipeline** | Retrieval-Augmented Generation with ChromaDB vector store & citations |
-| 🧮 **Tool Use** | Claude tool-use for financial metric extraction and calculation |
-| 🛠️ **MCP Server** | FastMCP server exposing FinSight capabilities as Claude tools |
-| 🤖 **Agent Workflow** | End-to-end agentic pipeline for IDX document Q&A |
+**Built as a validated AI/ML engineering portfolio** demonstrating real-world integration of LLM APIs, vector databases, neural topic modeling, and Model Context Protocol.
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-finsight-idx/
-├── data/
-│   ├── raw/              # PDF laporan tahunan IDX (not tracked in git)
-│   └── processed/        # Extracted text & metadata (not tracked in git)
-├── src/
-│   ├── api/              # Claude API client & utilities
-│   ├── nlp/              # Summarization, NER, topic modeling
-│   ├── rag/              # Chunking, embedding, retrieval pipeline
-│   └── mcp/              # FastMCP server & tool definitions
-├── notebooks/            # Exploratory analysis & demos
-├── tests/                # Unit & integration tests
-├── requirements.txt
-└── .env.example
+┌──────────────────────────────────────────────────────────────────┐
+│                     FinSight IDX Pipeline                        │
+│                                                                  │
+│  [Input]  PDF Laporan Tahunan IDX (747 halaman)                  │
+│      │                                                           │
+│      ▼                                                           │
+│  PDFExtractor ──► 423 sections ──► DocumentSummarizer            │
+│                                         │                        │
+│                                   Claude API                     │
+│                              ┌──────────┴──────────┐            │
+│                         Summarize            Key Metrics         │
+│                         Risk Factors         Outlook             │
+│                              │                                   │
+│         ┌────────────────────┼──────────────────────┐           │
+│         ▼                    ▼                       ▼           │
+│    ChromaDB              BERTopic              Sentiment         │
+│   134K chunks          Topic Modeling        News vs Report      │
+│   (RAG Index)          (12 categories)       (BI benchmark)      │
+│         │                                                        │
+│         ▼                                                        │
+│   FinancialQAChain  ◄──  RAGRetriever                           │
+│   Claude + Citations      BM25 + Semantic + RRF                  │
+│         │                                                        │
+│         ▼                                                        │
+│   FinancialAnalystAgent  (Claude Tool Use)                       │
+│   hitung_rasio │ bandingkan_emiten │ cari_di_laporan             │
+│         │                                                        │
+│         ▼                                                        │
+│   MCP Server (FastMCP) ◄──► Claude Desktop                       │
+│   FinSightOrchestrator ──► Markdown Report                       │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## ✨ Key Features
 
-**AI & NLP**
-- [Anthropic Claude API](https://docs.anthropic.com/) — summarization, extraction, tool use, agent orchestration
-- [sentence-transformers](https://www.sbert.net/) — multilingual embeddings (`paraphrase-multilingual-MiniLM-L12-v2`)
-- [BERTopic](https://maartengr.github.io/BERTopic/) — neural topic modeling for financial news
-- [HuggingFace Transformers](https://huggingface.co/docs/transformers) — NER, classification
-
-**Storage & Retrieval**
-- [ChromaDB](https://docs.trychroma.com/) — local vector store for semantic search
-
-**Document Processing**
-- [pdfplumber](https://github.com/jsvine/pdfplumber) — structured PDF extraction (tables, text blocks)
-- [PyMuPDF](https://pymupdf.readthedocs.io/) — fast rendering & image extraction
-
-**Serving**
-- [FastMCP](https://gofastmcp.com/) — MCP server for Claude tool integration
-
-**Quality**
-- `black`, `ruff`, `mypy` — formatting, linting, type checking
-- `pytest` + `pytest-asyncio` — unit & async tests
+| Module | Description | Tech |
+|--------|-------------|------|
+| 📄 **PDF Extraction** | Section-aware extraction from 747-page IDX reports | pdfplumber |
+| 🤖 **Summarization** | Multi-task NLP: summarize, sentiment, metrics, risk | Claude API |
+| 🏷️ **Topic Modeling** | Neural topic detection on Indonesian financial news | BERTopic |
+| 🔍 **RAG Pipeline** | Hybrid BM25+semantic search with page citations | ChromaDB |
+| 📊 **Evaluation** | ROUGE + Claude-as-judge (4.40/5.00 score) | rouge-score |
+| 🧮 **Tool Use** | PER/PBV/ROE/DER calculator via Claude tool use | Anthropic SDK |
+| 🛠️ **MCP Server** | 4 tools + 2 prompts + 1 resource for Claude Desktop | FastMCP |
+| 🤖 **Agent** | 5-step orchestrator: PDF→topics→sentiment→RAG→report | Multi-turn |
 
 ---
 
-## 🚀 Setup
+## 📊 Evaluation Results
+
+### Automatic Metrics (ROUGE)
+
+| Metric | Score |
+|--------|-------|
+| ROUGE-1 F1 | 0.239 |
+| ROUGE-2 F1 | 0.105 |
+| ROUGE-L F1 | 0.158 |
+
+### Model-Based Grading (Claude-as-Judge, scale 1–5)
+
+| Criterion | Score |
+|-----------|-------|
+| Factual Accuracy | 5.00 |
+| Financial Relevance | 5.00 |
+| Completeness | 4.00 |
+| Conciseness | 2.33 |
+| **Overall** | **4.40** |
+
+> ROUGE rendah pada summarization adalah normal — model melakukan parafrase bukan copy-paste. Claude-as-Judge 4.40/5.00 menunjukkan kualitas konten yang tinggi.
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
+
 - Python 3.10+
-- An [Anthropic API key](https://console.anthropic.com/)
+- [Anthropic API key](https://console.anthropic.com/)
 - macOS / Linux / WSL2
 
 ### Installation
 
 ```bash
-# 1. Clone the repository
+# 1. Clone repository
 git clone https://github.com/Agathahah/finsight-idx.git
 cd finsight-idx
 
@@ -97,67 +122,162 @@ pip install -r requirements.txt
 
 # 4. Configure environment
 cp .env.example .env
-# Edit .env and add your ANTHROPIC_API_KEY
+# Edit .env: tambahkan ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 ### Verify Setup
 
 ```bash
-python -c "import anthropic; print('✅ Anthropic SDK:', anthropic.__version__)"
+python -c "import anthropic; print('✅ SDK:', anthropic.__version__)"
 python -c "import chromadb; print('✅ ChromaDB:', chromadb.__version__)"
-python -c "import bertopic; print('✅ BERTopic:', bertopic.__version__)"
+PYTHONPATH=. pytest tests/ -q  # 143 tests should pass
 ```
 
 ---
 
-## 📓 Development Roadmap
+## 💡 Usage Examples
 
-- [x] **[01]** Repository setup & project structure
-- [ ] **[02]** Claude API: first call with IDX annual report
-- [ ] **[03]** Document summarization pipeline
-- [ ] **[04]** Topic modeling on financial news
-- [ ] **[05]** Prompt evaluation & grading system
-- [ ] **[06]** RAG pipeline with citations
-- [ ] **[07]** Tool use: financial metric calculator
-- [ ] **[08]** MCP server: FinSight tools
-- [ ] **[09]** MCP resources & prompt templates
-- [ ] **[10]** End-to-end agent workflow
-- [ ] **[11]** Full demo & documentation
+### 1. Summarize Annual Report
+
+```python
+from src.nlp.summarizer import DocumentSummarizer
+
+summarizer = DocumentSummarizer(output_dir='data/processed')
+result = summarizer.summarize('data/raw/bbca_laporan_tahunan_2023.pdf')
+print(result.financial_highlights)
+```
+
+### 2. RAG Q&A with Citations
+
+```python
+from src.rag.qa_chain import FinancialQAChain
+
+qa = FinancialQAChain(persist_dir='data/vectorstore')
+response = qa.ask("Berapa laba bersih BCA 2023?", company_filter='BBCA')
+print(response.format_answer())
+```
+
+### 3. Financial Analyst Agent (Tool Use)
+
+```python
+from src.api.tools import FinancialAnalystAgent
+
+agent = FinancialAnalystAgent()
+response = agent.chat(
+    "Hitung PER dan ROE BBCA: harga Rp 9500, EPS Rp 485, "
+    "laba bersih Rp 48.600M, ekuitas Rp 210.000M"
+)
+print(response.answer)
+```
+
+### 4. Full Analysis Pipeline
+
+```python
+from src.api.agent import FinSightOrchestrator
+
+orchestrator = FinSightOrchestrator()
+report = orchestrator.analyze(emiten='BBCA', tahun=2023,
+    pdf_path='data/raw/bbca_laporan_tahunan_2023.pdf')
+report.save('data/processed')
+```
+
+### 5. MCP Server
+
+```bash
+# Start server
+PYTHONPATH=. python -m src.mcp.server
+
+# claude_desktop_config.json
+{
+  "mcpServers": {
+    "finsight-idx": {
+      "command": "/path/to/.venv/bin/python",
+      "args": ["-m", "src.mcp.server"],
+      "cwd": "/path/to/finsight-idx"
+    }
+  }
+}
+```
+
+---
+
+## 📁 Project Structure
+
+```
+finsight-idx/
+├── src/
+│   ├── api/
+│   │   ├── client.py       # Claude API client + retry logic
+│   │   ├── evaluator.py    # ROUGE + Claude-as-judge
+│   │   ├── tools.py        # Tool use + FinancialAnalystAgent
+│   │   └── agent.py        # FinSightOrchestrator (5-step)
+│   ├── nlp/
+│   │   ├── pdf_extractor.py    # PDF extraction + section detection
+│   │   ├── summarizer.py       # DocumentSummarizer pipeline
+│   │   ├── topic_modeler.py    # BERTopic topic modeling
+│   │   └── news_scraper.py     # RSS scraper + synthetic dataset
+│   ├── rag/
+│   │   ├── indexer.py      # ChromaDB indexing + chunking
+│   │   ├── retriever.py    # Hybrid BM25+semantic + RRF
+│   │   └── qa_chain.py     # RAG Q&A with citations
+│   └── mcp/
+│       └── server.py       # FastMCP (4 tools, 2 prompts, 1 resource)
+├── tests/                  # 143 unit tests (all passing)
+├── notebooks/
+│   └── demo_finsight.ipynb # Interactive demo (Colab-ready)
+├── data/
+│   ├── raw/                # IDX annual report PDFs
+│   └── processed/          # Outputs
+├── requirements.txt
+└── .env.example
+```
+
+---
+
+## 🛠️ Tech Stack
+
+**AI & LLM:** Anthropic Claude API · sentence-transformers · BERTopic
+
+**Storage:** ChromaDB (134K chunks indexed)
+
+**Document Processing:** pdfplumber
+
+**Serving:** FastMCP (MCP Server)
+
+**Quality:** pytest (143 tests) · black · ruff · mypy · rouge-score
 
 ---
 
 ## 🧪 Running Tests
 
 ```bash
-# Run all tests
-pytest tests/ -v
-
-# With coverage report
-pytest tests/ --cov=src --cov-report=html
+PYTHONPATH=. pytest tests/ -v        # All 143 tests
+PYTHONPATH=. pytest tests/ --cov=src  # With coverage
 ```
 
 ---
 
-## 📂 Data
+## 📂 Data Sources
 
-This project uses publicly available documents from:
-- **[IDX (Indonesia Stock Exchange)](https://www.idx.co.id/)** — annual reports (Laporan Tahunan) of listed companies
-- **Indonesian financial news** — business press releases
-
-Raw PDFs are stored locally under `data/raw/` and are **not tracked** in version control due to file size.
+- **[IDX (Bursa Efek Indonesia)](https://www.idx.co.id/)** — Annual reports, publicly available
+- **Indonesian financial news** — RSS feeds (Kontan, CNBC Indonesia, Bisnis)
 
 ---
 
 ## 👤 Author
 
-**Agatha** — Data Scientist Research Assistant, Bank Indonesia Institute (BINS)  
-M.Sc. Data Science, Universitas Indonesia | AI/ML Engineering, Pacmann  
+**Agatha Silalahi** — Data Scientist, Bank Indonesia Institute (BINS)
+M.Sc. Data Science, Universitas Indonesia | AI/ML Engineering, Pacmann
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin)](https://www.linkedin.com/in/agatha-silalahi-722507215/)
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-black?logo=github)](https://github.com/Agathahah)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Agatha_Silalahi-0077B5?logo=linkedin)](https://www.linkedin.com/in/agatha-silalahi-722507215/)
+[![GitHub](https://img.shields.io/badge/GitHub-Agathahah-181717?logo=github)](https://github.com/Agathahah)
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](LICENSE) for details.
+
+<div align="center">
+<sub>Built with ❤️ using Claude API · FinSight IDX © 2024 Agatha Silalahi</sub>
+</div>
