@@ -40,7 +40,7 @@ FinSight IDX is an **end-to-end NLP intelligence platform** for Indonesian capit
 │         ┌────────────────────┼──────────────────────┐           │
 │         ▼                    ▼                       ▼           │
 │    ChromaDB              BERTopic              Sentiment         │
-│   134K chunks          Topic Modeling        News vs Report      │
+│   24.8K chunks          Topic Modeling        News vs Report      │
 │   (RAG Index)          (12 categories)       (BI benchmark)      │
 │         │                                                        │
 │         ▼                                                        │
@@ -238,7 +238,7 @@ finsight-idx/
 
 **AI & LLM:** Anthropic Claude API · sentence-transformers · BERTopic
 
-**Storage:** ChromaDB (134K chunks indexed)
+**Storage:** ChromaDB (24.8K chunks indexed)
 
 **Document Processing:** pdfplumber
 
