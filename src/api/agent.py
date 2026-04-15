@@ -460,22 +460,61 @@ class FinSightOrchestrator:
         report: AnalysisReport,
         pdf_path: Optional[str | Path],
     ) -> AnalysisReport:
-        """Step 1: Extract and summarize PDF."""
+        """Step 1: Extract and summarize PDF — with JSON cache support."""
+        import json as _json
         from src.nlp.summarizer import DocumentSummarizer
 
+        # ── Check cache first ────────────────────────────────────────────────
+        cache_dir = Path(self.output_dir)
+        cache_pattern = f"{report.emiten.lower()}*{report.tahun}*summary*.json"
+        cached_files = list(cache_dir.glob(cache_pattern))
+
+        if cached_files:
+            cached_file = sorted(cached_files)[-1]  # newest
+            try:
+                data = _json.loads(cached_file.read_text(encoding="utf-8"))
+                report.executive_summary    = data.get("general_overview", "")
+                report.financial_highlights = data.get("financial_highlights", "")
+                report.risk_factors         = data.get("risk_factors", "")
+                report.outlook              = data.get("outlook_and_strategy", "")
+                logger.info(
+                    "Summary loaded from cache | file={}", cached_file.name
+                )
+                return report
+            except Exception as exc:
+                logger.warning("Cache load failed: {} — re-summarizing", exc)
+
+        # ── No cache — summarize from PDF ────────────────────────────────────
         if not pdf_path:
             pdf_path = self._find_pdf(report.emiten, report.tahun)
 
         summarizer = DocumentSummarizer(output_dir=str(self.output_dir))
         summary = summarizer.summarize(pdf_path)
 
-        report.executive_summary = summary.general_overview
+        report.executive_summary    = summary.general_overview
         report.financial_highlights = summary.financial_highlights
-        report.risk_factors = summary.risk_factors
-        report.outlook = summary.outlook_and_strategy
-        report.total_input_tokens += summary.total_input_tokens
+        report.risk_factors         = summary.risk_factors
+        report.outlook              = summary.outlook_and_strategy
+        report.total_input_tokens  += summary.total_input_tokens
         report.total_output_tokens += summary.total_output_tokens
 
+        # ── Save to cache ─────────────────────────────────────────────────────
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        cache_path = cache_dir / f"{report.emiten.lower()}_{report.tahun}_summary_{ts}.json"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        cache_path.write_text(
+            _json.dumps({
+                "emiten":              report.emiten,
+                "tahun":               report.tahun,
+                "general_overview":    report.executive_summary,
+                "financial_highlights":report.financial_highlights,
+                "risk_factors":        report.risk_factors,
+                "outlook_and_strategy":report.outlook,
+                "cached_at":           datetime.now().isoformat(),
+            }, ensure_ascii=False, indent=2),
+            encoding="utf-8"
+        )
+        logger.info("Summary cached → {}", cache_path.name)
         return report
 
     def _step_topic_modeling(

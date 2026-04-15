@@ -43,8 +43,8 @@ from src.nlp.pdf_extractor import PDFExtractor
 
 DEFAULT_COLLECTION   = "finsight_documents"
 DEFAULT_EMBED_MODEL  = "paraphrase-multilingual-MiniLM-L12-v2"
-DEFAULT_CHUNK_SIZE   = 512    # characters per chunk
-DEFAULT_CHUNK_OVERLAP = 128   # overlap between consecutive chunks
+DEFAULT_CHUNK_SIZE   = 256    # characters per chunk (optimized for precision)
+DEFAULT_CHUNK_OVERLAP = 64    # overlap between consecutive chunks
 
 
 # ---------------------------------------------------------------------------
@@ -246,9 +246,8 @@ class RAGIndexer:
                 limit=1,
             )
             if existing["ids"]:
-                count = len(collection.get(
-                    where={"document_id": document_id}
-                )["ids"])
+                # Fix: paginated count avoids SQL variables error on large collections
+                count = self._count_document_chunks(collection, document_id)
                 logger.info(
                     "Document already indexed | chunks={} | skipping",
                     count
@@ -458,3 +457,25 @@ class RAGIndexer:
         """Generate stable document ID from file path + metadata."""
         key = f"{path.stem}_{company}_{year}"
         return hashlib.md5(key.encode()).hexdigest()[:12]
+
+    @staticmethod
+    def _count_document_chunks(collection, document_id: str) -> int:
+        """
+        Count chunks for a document using pagination to avoid
+        'too many SQL variables' error on large ChromaDB collections.
+        """
+        count = 0
+        offset = 0
+        page_size = 500
+        while True:
+            batch = collection.get(
+                where={"document_id": document_id},
+                limit=page_size,
+                offset=offset,
+                include=[],
+            )
+            count += len(batch["ids"])
+            if len(batch["ids"]) < page_size:
+                break
+            offset += page_size
+        return count
