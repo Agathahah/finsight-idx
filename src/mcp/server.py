@@ -43,6 +43,7 @@ except ImportError:
     FastMCP = None  # type: ignore
 
 # FinSight imports
+from src.config import claude_model
 from src.api.tools import (
     hitung_rasio_keuangan,
     bandingkan_emiten,
@@ -68,7 +69,7 @@ else:
 
 # Configuration from environment
 RAG_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", "data/vectorstore")
-CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514")
+CLAUDE_MODEL = claude_model()
 
 
 # ---------------------------------------------------------------------------
