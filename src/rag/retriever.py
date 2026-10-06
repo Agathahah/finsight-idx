@@ -4,15 +4,23 @@ FinSight IDX — RAG Retriever
 Hybrid retrieval combining BM25 (lexical) and semantic (vector) search.
 
 Strategy:
-    1. Semantic search   — ChromaDB cosine similarity (dense retrieval)
-    2. BM25 search       — keyword matching (sparse retrieval)
-    3. Reciprocal Rank Fusion (RRF) — merge and rerank results
-    4. Return top-k chunks with unified relevance scores
+    1. Metadata pre-filter (company / year / section type)
+    2. Semantic search   — ChromaDB cosine similarity over the filtered set
+    3. BM25 search       — keyword scoring over the SAME filtered set
+    4. Reciprocal Rank Fusion (RRF) of the two independent ranked lists
+
+Note (October 2026 audit): the first version ran BM25 only over the 20
+semantic candidates. That is re-ranking, not hybrid retrieval: a chunk that
+matches an exact term (a ticker, an account name) but was missed by the
+embedding model could never be recovered, and BM25's IDF was computed on 20
+documents. BM25 now scores the whole filtered corpus.
 """
 
 from __future__ import annotations
 
+import json
 import math
+import re
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Optional
@@ -117,8 +125,8 @@ class BM25:
         return [self.score(query, i) for i in range(len(self._corpus))]
 
     def _tokenize(self, text: str) -> list[str]:
-        """Simple whitespace + lowercase tokenizer."""
-        return text.lower().split()
+        """Lowercase word tokenizer that strips punctuation ("BBCA," -> "bbca")."""
+        return re.findall(r"\w+", text.lower())
 
     def _term_freq(self, tokens: list[str]) -> dict[str, int]:
         tf: dict[str, int] = defaultdict(int)
@@ -181,6 +189,7 @@ class RAGRetriever:
             embed_model=embed_model,
         )
         self._embed_model: Optional[SentenceTransformer] = None
+        self._bm25_cache: dict[str, tuple[BM25, list[RetrievedChunk]]] = {}
 
     # ------------------------------------------------------------------
     # Public API
@@ -236,10 +245,12 @@ class RAGRetriever:
         if not semantic_results:
             return []
 
-        # Step 2: BM25 over semantic candidates
-        bm25_results = self._bm25_search(query, semantic_results)
+        # Step 2: BM25 over the whole filtered corpus (independent list)
+        bm25_results = self._bm25_search_corpus(
+            query, where_filter, self.semantic_candidates
+        )
 
-        # Step 3: RRF fusion
+        # Step 3: RRF fusion of two independent rankings
         fused = self._reciprocal_rank_fusion(semantic_results, bm25_results)
 
         # Return top_k
@@ -339,6 +350,56 @@ class RAGRetriever:
             result.append(chunk)
         return result
 
+    def _bm25_search_corpus(
+        self,
+        query: str,
+        where_filter: Optional[dict],
+        top_n: int,
+    ) -> list[RetrievedChunk]:
+        """Score every chunk that passes the metadata filter with BM25.
+
+        The BM25 index is built once per filter and cached.
+        """
+        key = json.dumps(where_filter, sort_keys=True)
+        if key not in self._bm25_cache:
+            collection = self._indexer._get_collection()
+            kwargs: dict = {"include": ["documents", "metadatas"]}
+            if where_filter:
+                kwargs["where"] = where_filter
+            data = collection.get(**kwargs)
+            chunks = [
+                RetrievedChunk(
+                    chunk_id=cid,
+                    text=text,
+                    page_number=meta.get("page_number", 0),
+                    section_title=meta.get("section_title", ""),
+                    section_type=meta.get("section_type", ""),
+                    source_file=meta.get("source_file", ""),
+                    company=meta.get("company", ""),
+                    year=meta.get("year", 0),
+                )
+                for cid, text, meta in zip(
+                    data["ids"], data["documents"], data["metadatas"]
+                )
+            ]
+            index = BM25()
+            index.fit([c.text for c in chunks])
+            self._bm25_cache[key] = (index, chunks)
+
+        index, chunks = self._bm25_cache[key]
+        if not chunks:
+            return []
+        scores = index.score_all(query)
+        ranked = sorted(range(len(chunks)), key=lambda i: scores[i], reverse=True)
+        results = []
+        for i in ranked[:top_n]:
+            if scores[i] <= 0:
+                break
+            chunk = RetrievedChunk(**{**chunks[i].__dict__})
+            chunk.bm25_score = round(scores[i], 4)
+            results.append(chunk)
+        return results
+
     def _reciprocal_rank_fusion(
         self,
         semantic_list: list[RetrievedChunk],
@@ -356,8 +417,12 @@ class RAGRetriever:
         for rank, chunk in enumerate(bm25_list, start=1):
             rrf_scores[chunk.chunk_id] += 1.0 / (self.rrf_k + rank)
 
-        # Build lookup
-        chunk_lookup = {c.chunk_id: c for c in semantic_list}
+        # Build lookup from BOTH lists so lexical-only hits survive fusion
+        chunk_lookup = {c.chunk_id: c for c in bm25_list}
+        for c in semantic_list:
+            if c.chunk_id in chunk_lookup:
+                c.bm25_score = chunk_lookup[c.chunk_id].bm25_score
+            chunk_lookup[c.chunk_id] = c
 
         # Sort by RRF score
         sorted_ids = sorted(
