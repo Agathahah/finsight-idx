@@ -28,6 +28,7 @@ from tenacity import (
     before_sleep_log,
 )
 import logging
+from src.config import claude_model
 
 # Load .env at module import time
 load_dotenv()
@@ -36,7 +37,7 @@ load_dotenv()
 # Constants
 # ---------------------------------------------------------------------------
 
-DEFAULT_MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514")
+DEFAULT_MODEL = claude_model()
 DEFAULT_MAX_TOKENS = int(os.getenv("CLAUDE_MAX_TOKENS", "4096"))
 DEFAULT_TEMPERATURE = float(os.getenv("CLAUDE_TEMPERATURE", "0.2"))
 

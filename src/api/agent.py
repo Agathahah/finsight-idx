@@ -25,6 +25,7 @@ from typing import Optional
 from loguru import logger
 
 from src.api.client import get_client
+from src.config import claude_model
 from src.api.tools import (
     FinancialAnalystAgent,
     cari_di_laporan,
@@ -154,7 +155,7 @@ Berikan analisis sentimen dalam format JSON yang diminta."""
 
     try:
         response = get_client().messages.create(
-            model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514"),
+            model=claude_model(),
             max_tokens=512,
             temperature=0.1,
             system=SENTIMENT_SYSTEM_PROMPT,
@@ -286,7 +287,7 @@ def generate_markdown_report(
     )
 
     response = get_client().messages.create(
-        model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514"),
+        model=claude_model(),
         max_tokens=3000,
         temperature=0.2,
         system=REPORT_SYSTEM_PROMPT,

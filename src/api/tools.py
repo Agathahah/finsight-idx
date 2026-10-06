@@ -27,6 +27,7 @@ from typing import Any, Optional
 from loguru import logger
 
 from src.api.client import get_client
+from src.config import claude_model
 
 # RAG retriever (optional — gracefully disabled if not indexed)
 try:
@@ -540,11 +541,11 @@ class FinancialAnalystAgent:
 
     def __init__(
         self,
-        model: str = "claude-sonnet-4-20250514",
+        model: str | None = None,
         max_tool_rounds: int = 5,
         rag_persist_dir: str = "data/vectorstore",
     ) -> None:
-        self.model = model
+        self.model = model or claude_model()
         self.max_tool_rounds = max_tool_rounds
         self.rag_persist_dir = rag_persist_dir
 
