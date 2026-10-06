@@ -1,0 +1,14 @@
+# Light dependency set for unit tests (no torch / sentence-transformers / BERTopic)
+anthropic
+python-dotenv
+loguru
+tenacity
+pdfplumber
+pandas
+numpy
+httpx
+pydantic
+fastmcp
+chromadb
+rouge-score
+pytest
