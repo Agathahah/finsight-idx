@@ -49,7 +49,8 @@ def test_force_reindex_deletes_existing_chunks(tmp_path, monkeypatch):
     rag.chunker = TextChunker(256, 64)
     rag._get_collection = lambda: collection
     rag._store_chunks = lambda chunks: None
+    rag.persist_dir = tmp_path
     fake_doc = SimpleNamespace(sections=[], total_pages=1)
-    monkeypatch.setattr(idx, "PDFExtractor", lambda: SimpleNamespace(extract=lambda p: fake_doc))
+    rag.extractor = SimpleNamespace(extract=lambda p: fake_doc)
     rag.index_pdf(pdf, company="BBCA", year=2023, force_reindex=True)
     collection.delete.assert_called_once()
