@@ -51,9 +51,17 @@ try:
 except ImportError:
     HAS_RAG = False
 
-# ── Agent singleton ──────────────────────────────────────────────────────────
+# ── Production request path (validation, rate limit, logging) ───────────────
+from src.serving.guard import InvalidQuestion, validate_question
+from src.serving.qa_service import QAService, client_key_from_request, trim_agent_history
+from src.serving.telemetry import log_query, new_request_id
+
+PERSIST_DIR = os.getenv("VECTORSTORE_DIR", str(ROOT / "data" / "vectorstore"))
+qa_service = QAService(persist_dir=PERSIST_DIR)
+
+# ── Agent singleton (stateless: each visitor's history lives in gr.State) ────
 _agent = None
-_agent_history = []
+
 
 def get_agent():
     global _agent
@@ -115,85 +123,59 @@ def calculate_ratios(
 # Tab 2: RAG Q&A
 # ============================================================================
 
-def ask_laporan(query, emiten_filter, year_filter):
-    if not query.strip():
-        return "⚠️ Masukkan pertanyaan terlebih dahulu."
-
-    if not HAS_API:
-        return "⚠️ ANTHROPIC_API_KEY belum diset. Tambahkan di Space Secrets."
-
+def ask_laporan(query, emiten_filter, year_filter, request: gr.Request = None):
     if not HAS_RAG:
-        return "⚠️ RAG module tidak tersedia."
-
-    try:
-        qa = FinancialQAChain(persist_dir="data/vectorstore")
-        response = qa.ask(
-            question=query,
-            company_filter=emiten_filter if emiten_filter else None,
-            year_filter=int(year_filter) if year_filter else None,
-        )
-
-        lines = [f"## 💡 Jawaban\n{response.answer}\n"]
-
-        if response.sources:
-            lines.append("## 📚 Sumber")
-            for src in response.sources[:3]:
-                lines.append(f"- **{src.citation}** — hal. {src.page_number}")
-                lines.append(f"  > *{src.text_preview[:120]}...*")
-
-        lines.append(f"\n---\n⚡ {response.input_tokens} in / {response.output_tokens} out tokens | {response.latency_ms:.0f}ms")
-        return "\n".join(lines)
-
-    except ValueError as e:
-        return (
-            f"⚠️ {e}\n\n"
-            "**Hint:** Pastikan PDF laporan sudah diindeks dengan:\n"
-            "```python\nfrom src.rag.indexer import RAGIndexer\n"
-            "indexer = RAGIndexer()\n"
-            "indexer.index_pdf('data/raw/bbca_laporan_tahunan_2023.pdf',\n"
-            "                   company='BBCA', year=2023)\n```"
-        )
-    except Exception as e:
-        return f"❌ Error: {e}"
+        return "⚠️ Modul RAG tidak tersedia."
+    return qa_service.ask(query, emiten_filter, year_filter, client_key_from_request(request))
 
 
 # ============================================================================
 # Tab 3: Financial Analyst Agent (Chat)
 # ============================================================================
 
-def chat_with_agent(message, history):
-    # Gradio 6: messages format {"role": ..., "content": ...}
-    user_msg = {"role": "user", "content": message}
+def chat_with_agent(message, history, agent_history, request: gr.Request = None):
+    """Each browser session keeps its own agent history in gr.State.
 
-    if not HAS_API:
-        return history + [user_msg, {"role": "assistant", "content": "⚠️ ANTHROPIC_API_KEY belum diset."}]
+    v1 kept one global history, so every visitor of the Space continued the
+    previous visitor's conversation.
+    """
+    import time as _time
+    rid, t0 = new_request_id(), _time.perf_counter()
+    history = history or []
+    agent_history = agent_history or []
 
-    if not HAS_TOOLS:
-        return history + [user_msg, {"role": "assistant", "content": "⚠️ Tools module tidak tersedia."}]
+    def reply(text, status, **kw):
+        log_query(request_id=rid, question=message if isinstance(message, str) else "",
+                  status=status, latency_ms=(_time.perf_counter() - t0) * 1000, **kw)
+        return history + [{"role": "user", "content": message},
+                          {"role": "assistant", "content": text}], agent_history
 
+    try:
+        message = validate_question(message)
+    except InvalidQuestion as exc:
+        return reply(f"⚠️ {exc}", "rejected", error_type="invalid_input")
+    allowed, wait = qa_service.limiter.allow(client_key_from_request(request))
+    if not allowed:
+        return reply(f"⏳ Terlalu banyak pesan. Coba lagi dalam {int(wait) + 1} detik.", "rate_limited")
     agent = get_agent()
     if not agent:
-        return history + [user_msg, {"role": "assistant", "content": "⚠️ Agent tidak dapat diinisialisasi."}]
-
-    global _agent_history
+        return reply("⚠️ Agent belum dikonfigurasi (API key tidak ditemukan).", "error",
+                     error_type="agent_unavailable")
     try:
-        response = agent.chat(message, history=_agent_history)
-        _agent_history = response.conversation_history
+        response = agent.chat(message, history=trim_agent_history(agent_history))
+    except Exception as exc:
+        return reply(f"❌ Terjadi kesalahan. (id `{rid}`)", "error", error_type=type(exc).__name__)
 
-        answer = response.answer
-        if response.tools_used:
-            tools = ", ".join(set(response.tools_used))
-            answer += f"\n\n---\n🔧 *Tools: {tools} | {response.input_tokens} tokens*"
-
-        return history + [user_msg, {"role": "assistant", "content": answer}]
-    except Exception as e:
-        return history + [user_msg, {"role": "assistant", "content": f"❌ Error: {e}"}]
+    agent_history = response.conversation_history
+    answer = response.answer
+    if response.tools_used:
+        answer += f"\n\n---\n🔧 *Tools: {', '.join(sorted(set(response.tools_used)))}*"
+    return reply(answer, "ok", input_tokens=getattr(response, "input_tokens", 0),
+                 output_tokens=getattr(response, "output_tokens", 0))
 
 
 def reset_chat():
-    global _agent_history
-    _agent_history = []
-    return []
+    return [], []
 
 
 # ============================================================================
@@ -341,7 +323,7 @@ HEADER = """
 </div>
 """
 
-with gr.Blocks(title="FinSight IDX", css=CUSTOM_CSS) as demo:
+with gr.Blocks(title="FinSight IDX") as demo:
     gr.HTML(HEADER)
 
     with gr.Tabs():
@@ -439,6 +421,7 @@ with gr.Blocks(title="FinSight IDX", css=CUSTOM_CSS) as demo:
                 inputs=[rag_query, rag_emiten, rag_year],
                 outputs=out_rag,
             )
+            index_status = gr.Markdown()
 
         # ── Tab 3: Agent Chat ───────────────────────────────────────────────
         with gr.Tab("🤖 Analyst Agent"):
@@ -473,19 +456,21 @@ with gr.Blocks(title="FinSight IDX", css=CUSTOM_CSS) as demo:
                 label="Contoh Pertanyaan",
             )
 
+            agent_state = gr.State([])
+
             btn_send.click(
                 chat_with_agent,
-                inputs=[chat_input, chatbot],
-                outputs=chatbot,
+                inputs=[chat_input, chatbot, agent_state],
+                outputs=[chatbot, agent_state],
             ).then(lambda: "", outputs=chat_input)
 
             chat_input.submit(
                 chat_with_agent,
-                inputs=[chat_input, chatbot],
-                outputs=chatbot,
+                inputs=[chat_input, chatbot, agent_state],
+                outputs=[chatbot, agent_state],
             ).then(lambda: "", outputs=chat_input)
 
-            btn_clear.click(reset_chat, outputs=chatbot)
+            btn_clear.click(reset_chat, outputs=[chatbot, agent_state])
 
         # ── Tab 4: Compare ──────────────────────────────────────────────────
         with gr.Tab("⚖️ Bandingkan Emiten"):
@@ -551,11 +536,17 @@ Data Scientist, Bank Indonesia Institute |
         sanitize_html=False,
     )
 
+    demo.load(lambda: f"<sub>{qa_service.status()}</sub>", outputs=index_status)
+
 
 if __name__ == "__main__":
+    import threading
+    threading.Thread(target=qa_service.warmup, daemon=True).start()  # load models before the first visitor
+    demo.queue(default_concurrency_limit=2, max_size=int(os.getenv("QUEUE_MAX_SIZE", "20")))
     demo.launch(
         server_name="0.0.0.0",
         server_port=7860,
         share=False,
         theme=THEME,
+        css=CUSTOM_CSS,
     )
