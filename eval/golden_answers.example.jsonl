@@ -1,0 +1,3 @@
+{"question": "Berapa laba bersih tahun berjalan BCA 2023?", "company": "BBCA", "year": 2023, "relevant_pages": [0], "expected": ["0"], "note": "EXAMPLE FORMAT ONLY: put the exact figure and PDF page you checked"}
+{"question": "Siapa kantor akuntan publik yang mengaudit laporan keuangan konsolidasian 2023?", "company": "BBCA", "year": 2023, "relevant_pages": [0], "expected": ["Tanudiredja"], "note": "EXAMPLE FORMAT ONLY"}
+{"question": "Berapa laba bersih Bank Rakyat Indonesia tahun 2023?", "company": "BBCA", "year": 2023, "answerable": false, "note": "Not in this document: the system must refuse"}
