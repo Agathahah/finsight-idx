@@ -1,12 +1,19 @@
-anthropic>=0.40.0
-gradio>=4.44.0
-python-dotenv>=1.0.0
-loguru>=0.7.2
-tenacity>=8.2.3
-pdfplumber>=0.10.3
-sentence-transformers>=2.5.0
-chromadb>=1.0.0
-rouge-score>=0.1.2
-pandas>=2.2.0
-numpy>=1.26.0
-fastmcp>=0.4.0
+# Runtime dependencies for the Hugging Face Space and the Docker image.
+# Pinned to the versions the index was built and tested with: ChromaDB's
+# on-disk format and the embedding model must match between indexing and serving.
+# Gradio itself comes from `sdk_version` in the Space README (Docker installs it explicitly).
+anthropic==1.13.0
+chromadb==1.5.9
+sentence-transformers==6.1.0
+transformers==5.19.0
+torch==2.14.1
+pdfplumber==0.11.10
+loguru==0.7.3
+tenacity==9.2.1
+python-dotenv==1.2.4
+pandas==3.0.6
+numpy==2.5.4
+fastmcp==4.1.0
+rouge-score==0.1.2
+httpx==0.28.1
+pydantic==2.14.1

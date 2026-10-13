@@ -70,6 +70,7 @@ def main() -> None:
     ap.add_argument("golden")
     ap.add_argument("--k", type=int, default=5)
     ap.add_argument("--persist-dir", default="data/vectorstore")
+    ap.add_argument("--out", default="reports/retrieval_eval.json")
     args = ap.parse_args()
 
     from src.rag.retriever import RAGRetriever
@@ -81,7 +82,14 @@ def main() -> None:
     semantic = evaluate(lambda q, it: retriever.retrieve_semantic_only(
         q, top_k=args.k, where_filter=retriever._build_filter(it.get("company"), it.get("year"), None)),
         golden, args.k)
-    print(json.dumps({"hybrid": hybrid, "semantic_only": semantic}, indent=2, ensure_ascii=False))
+    report = {"hybrid": hybrid, "semantic_only": semantic}
+    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.out).write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(json.dumps(report, indent=2, ensure_ascii=False))
+    print("\n| Retriever | recall@{k} | MRR |\n|---|---|---|".format(k=args.k))
+    for name, r in report.items():
+        print(f"| {name} | {r['recall_at_k']:.2f} | {r['mrr']:.2f} |")
+    print(f"\nSaved to {args.out}")
 
 
 if __name__ == "__main__":
