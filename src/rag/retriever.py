@@ -34,6 +34,7 @@ except ImportError:
     HAS_ST = False
 
 from src.rag.indexer import RAGIndexer, DEFAULT_EMBED_MODEL, DEFAULT_COLLECTION
+from src.rag.manifest import check_compatible
 
 
 # ---------------------------------------------------------------------------
@@ -55,6 +56,7 @@ class RetrievedChunk:
     bm25_score: float = 0.0
     rrf_score: float = 0.0
     rank: int = 0
+    extraction: str = "text"
 
     def citation(self) -> str:
         """Generate a citation string for this chunk."""
@@ -66,6 +68,8 @@ class RetrievedChunk:
         if self.section_title:
             parts.append(self.section_title[:40])
         parts.append(f"hal. {self.page_number}")
+        if self.extraction == "ocr":
+            parts.append("OCR")
         return f"[{', '.join(parts)}]"
 
 
@@ -183,6 +187,8 @@ class RAGRetriever:
         self.semantic_candidates = semantic_candidates
         self.rrf_k = rrf_k
 
+        # Refuse an index built with other settings (see src/rag/manifest.py).
+        self.manifest = check_compatible(persist_dir, embed_model)
         self._indexer = RAGIndexer(
             persist_dir=persist_dir,
             collection_name=collection_name,
@@ -320,6 +326,7 @@ class RAGRetriever:
                 source_file=meta.get("source_file", ""),
                 company=meta.get("company", ""),
                 year=meta.get("year", 0),
+                extraction=meta.get("extraction", "text"),
                 semantic_score=round(semantic_score, 4),
             ))
         return chunks
@@ -377,6 +384,7 @@ class RAGRetriever:
                     source_file=meta.get("source_file", ""),
                     company=meta.get("company", ""),
                     year=meta.get("year", 0),
+                    extraction=meta.get("extraction", "text"),
                 )
                 for cid, text, meta in zip(
                     data["ids"], data["documents"], data["metadatas"]

@@ -34,7 +34,8 @@ try:
 except ImportError:
     HAS_ST = False
 
-from src.nlp.pdf_extractor import PAGE_BREAK, PDFExtractor
+from src.nlp.pdf_extractor import EXTRACTOR_VERSION, PAGE_BREAK, PDFExtractor
+from src.rag.manifest import file_sha256, load_manifest, record_document
 
 
 # ---------------------------------------------------------------------------
@@ -65,6 +66,7 @@ class DocumentChunk:
     company: str = ""
     year: int = 0
     char_count: int = 0
+    extraction: str = "text"   # "text" or "ocr": OCR text can contain recognition errors
 
     def __post_init__(self) -> None:
         self.char_count = len(self.text)
@@ -85,6 +87,7 @@ class DocumentChunk:
             "company":       self.company,
             "year":          self.year,
             "char_count":    self.char_count,
+            "extraction":    self.extraction,
         }
 
 
@@ -99,6 +102,9 @@ class IndexStats:
     collection_name: str
     embed_model: str
     indexed_at: str = ""
+    pages_ocr: list[int] = field(default_factory=list)
+    pages_empty: list[int] = field(default_factory=list)
+    boilerplate_lines_removed: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -187,6 +193,7 @@ class RAGIndexer:
         embed_model: str = DEFAULT_EMBED_MODEL,
         chunk_size: int = DEFAULT_CHUNK_SIZE,
         chunk_overlap: int = DEFAULT_CHUNK_OVERLAP,
+        extractor: Optional[PDFExtractor] = None,
     ) -> None:
         if not HAS_CHROMA:
             raise ImportError("chromadb required. Run: pip install chromadb")
@@ -201,6 +208,7 @@ class RAGIndexer:
         self.collection_name = collection_name
         self.embed_model_name = embed_model
         self.chunker = TextChunker(chunk_size, chunk_overlap)
+        self.extractor = extractor or PDFExtractor()
 
         self._embed_model: Optional[SentenceTransformer] = None
         self._client: Optional[chromadb.PersistentClient] = None
@@ -253,6 +261,11 @@ class RAGIndexer:
                     "Document already indexed | chunks={} | skipping",
                     count
                 )
+                entry = ((load_manifest(self.persist_dir) or {}).get("documents") or {}).get(document_id)
+                if entry is None:
+                    logger.warning("No manifest entry for this document: re-index with force_reindex=True")
+                elif path.exists() and entry.get("pdf_sha256") != file_sha256(path):
+                    logger.warning("PDF changed since it was indexed: re-index with force_reindex=True")
                 from datetime import datetime
                 return IndexStats(
                     document_id=document_id,
@@ -266,8 +279,9 @@ class RAGIndexer:
                 )
 
         # Extract PDF
-        extractor = PDFExtractor()
-        doc = extractor.extract(path)
+        doc = self.extractor.extract(path)
+
+        meta = getattr(doc, "metadata", None) or {}
 
         # Build chunks from sections
         all_chunks = self._build_chunks(doc, document_id, company, year, path.name)
@@ -290,11 +304,35 @@ class RAGIndexer:
             collection_name=self.collection_name,
             embed_model=self.embed_model_name,
             indexed_at=datetime.now().isoformat(),
+            pages_ocr=meta.get("pages_ocr", []),
+            pages_empty=meta.get("pages_empty", []),
+            boilerplate_lines_removed=meta.get("boilerplate_lines_removed", 0),
+        )
+
+        record_document(
+            self.persist_dir,
+            document_id,
+            {
+                "source_file": path.name,
+                "company": company,
+                "year": year,
+                "pdf_sha256": file_sha256(path),
+                "total_pages": doc.total_pages,
+                "total_chunks": len(all_chunks),
+                "extractor_version": meta.get("extractor_version", EXTRACTOR_VERSION),
+                "ocr_used": meta.get("ocr_used", False),
+                "pages_ocr": stats.pages_ocr,
+                "pages_empty": stats.pages_empty,
+                "boilerplate_lines_removed": stats.boilerplate_lines_removed,
+            },
+            embed_model=self.embed_model_name,
+            chunk_size=self.chunker.chunk_size,
+            chunk_overlap=self.chunker.overlap,
         )
 
         logger.success(
-            "Indexing complete | chunks={} | pages={}",
-            stats.total_chunks, stats.total_pages
+            "Indexing complete | chunks={} | pages={} | ocr_pages={} | empty_pages={}",
+            stats.total_chunks, stats.total_pages, len(stats.pages_ocr), len(stats.pages_empty),
         )
         return stats
 
@@ -394,6 +432,7 @@ class RAGIndexer:
         """Build DocumentChunk list from ExtractedDocument sections."""
         all_chunks: list[DocumentChunk] = []
         global_index = 0
+        page_source = {p.page_number: getattr(p, "source", "text") for p in getattr(doc, "pages", [])}
 
         for section in doc.sections:
             for chunk_text, offset in self.chunker.chunk_with_offsets(section.text):
@@ -411,6 +450,7 @@ class RAGIndexer:
                     source_file=source_file,
                     company=company,
                     year=year,
+                    extraction="ocr" if page_source.get(page) == "ocr" else "text",
                 )
                 all_chunks.append(chunk)
                 global_index += 1
