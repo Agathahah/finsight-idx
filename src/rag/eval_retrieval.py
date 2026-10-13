@@ -18,6 +18,9 @@ from pathlib import Path
 
 def load_golden(path: str | Path) -> list[dict]:
     rows = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines() if line.strip()]
+    # Questions the document cannot answer have no relevant page: they belong
+    # to the answer-level eval (eval_answers.py), not to retrieval recall.
+    rows = [r for r in rows if r.get("answerable", True)]
     for r in rows:
         if not r.get("question") or not r.get("relevant_pages"):
             raise ValueError(f"Each row needs 'question' and 'relevant_pages': {r}")
