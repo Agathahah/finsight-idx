@@ -23,6 +23,7 @@ from loguru import logger
 
 from src.api.client import get_client
 from src.rag.retriever import RAGRetriever, RetrievedChunk
+from src.config import claude_model
 
 
 # ---------------------------------------------------------------------------
@@ -132,7 +133,7 @@ class FinancialQAChain:
     def __init__(
         self,
         persist_dir: str = "data/vectorstore",
-        model: str = "claude-sonnet-4-20250514",
+        model: str | None = None,
         top_k: int = 5,
         max_context_chars: int = 6000,
     ) -> None:
@@ -143,7 +144,7 @@ class FinancialQAChain:
             top_k:             Number of chunks to retrieve.
             max_context_chars: Max characters of context sent to Claude.
         """
-        self.model = model
+        self.model = model or claude_model()
         self.top_k = top_k
         self.max_context_chars = max_context_chars
         self.retriever = RAGRetriever(persist_dir=persist_dir)

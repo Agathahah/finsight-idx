@@ -7,7 +7,7 @@
 [![Claude API](https://img.shields.io/badge/Claude_API-Anthropic-D97706)](https://www.anthropic.com/)
 [![FastMCP](https://img.shields.io/badge/FastMCP-MCP_Server-6366F1)](https://gofastmcp.com/)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-22C55E)](https://docs.trychroma.com/)
-[![Tests](https://img.shields.io/badge/Tests-143_passed-22C55E)](tests/)
+[![Tests](https://img.shields.io/badge/unit_tests-151-22C55E)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Agathahah/finsight-idx/blob/main/notebooks/demo_finsight.ipynb)
 
@@ -15,9 +15,9 @@
 
 ## 🎯 Project Overview
 
-FinSight IDX is an **end-to-end NLP intelligence platform** for Indonesian capital markets (IDX/BEI). It automates the full financial analysis workflow — from raw PDF ingestion to an agentic MCP-powered analyst — using a production-grade AI stack.
+FinSight IDX is an **end-to-end NLP intelligence platform** for Indonesian capital markets (IDX/BEI). It covers the full workflow from raw PDF ingestion to an MCP-connected analyst agent.
 
-**Built as a validated AI/ML engineering portfolio** demonstrating real-world integration of LLM APIs, vector databases, neural topic modeling, and Model Context Protocol.
+**Status: research prototype.** It runs locally and in a Gradio demo; it has no authentication, monitoring or load testing, and its retrieval quality has not yet been measured on a labelled question set (see *Audit*).
 
 ---
 
@@ -40,7 +40,7 @@ FinSight IDX is an **end-to-end NLP intelligence platform** for Indonesian capit
 │         ┌────────────────────┼──────────────────────┐           │
 │         ▼                    ▼                       ▼           │
 │    ChromaDB              BERTopic              Sentiment         │
-│   24.8K chunks          Topic Modeling        News vs Report      │
+│   (re-index needed)     Topic Modeling        News vs Report      │
 │   (RAG Index)          (12 categories)       (BI benchmark)      │
 │         │                                                        │
 │         ▼                                                        │
@@ -94,7 +94,27 @@ FinSight IDX is an **end-to-end NLP intelligence platform** for Indonesian capit
 | Conciseness | 2.33 |
 | **Overall** | **4.40** |
 
-> ROUGE rendah pada summarization adalah normal — model melakukan parafrase bukan copy-paste. Claude-as-Judge 4.40/5.00 menunjukkan kualitas konten yang tinggi.
+> **How much these numbers can carry:** they come from 10 summaries. The judge is a Claude model grading Claude output, which tends to be lenient toward its own style, and no human rating was collected to check it. Treat 4.40/5 as a smoke test, not as evidence of quality. Low ROUGE is expected for paraphrasing summaries, so ROUGE alone says little either way.
+
+### Retrieval evaluation (to be run)
+
+`src/rag/eval_retrieval.py` compares hybrid and semantic-only retrieval with recall@k and MRR on a hand-labelled golden set. Write at least 50 questions with the page numbers you verified in the PDF (format: `eval/golden_questions.example.jsonl`), then run `python -m src.rag.eval_retrieval eval/golden_questions.jsonl --k 5`.
+
+## 🔎 Audit, October 2026
+
+I inspected the stored vector index and the code. Findings and fixes:
+
+| # | Finding | Evidence | Fix |
+|---|---|---|---|
+| 1 | **Chunker produced near-duplicate chunks.** When a sentence boundary fell just after the window start, the window advanced by one character. | Index: 24,875 chunks, only 20,833 distinct texts, average length 88 characters instead of 256; consecutive chunks like "am Kategori 2…", "m Kategori 2…", "Kategori 2…". | Boundary only accepted in the second half of the window; each step advances at least `chunk_size − overlap`. Regression tests in `tests/test_chunker_pages.py`. **Re-index required.** |
+| 2 | **Citations pointed to the section's first page,** not the chunk's page. | 26 distinct page numbers across a 747-page report. | Pages are joined with a page-break marker; each chunk's page is computed from its offset. |
+| 3 | **"Hybrid" search was re-ranking.** BM25 only scored the 20 chunks already returned by semantic search, so an exact-term match missed by the embeddings could never be retrieved, and BM25 IDF came from 20 documents. | `retriever.py` v1 | BM25 scores the whole metadata-filtered corpus; RRF fuses two independent lists. Test: a lexical-only hit is now returned. |
+| 4 | **Metadata pre-filtering had nothing to filter.** | The index holds one company (BBCA) and one year (2023). | Kept, but the benefit can only be shown after indexing several companies/years. |
+| 5 | **Model ID hard-coded in 9 places;** the dated ID returned 404 once retired. Unit tests passed because every API call is mocked. | `grep claude-sonnet-4-20250514` | One setting, `CLAUDE_MODEL` in `.env` (`src/config.py`); `scripts/check_model.py` verifies the ID against the API. |
+| 6 | **Evaluation overstated** (10 samples, self-grading judge). | Section above | Caveat added; retrieval evaluation harness added. |
+| 7 | **`force_reindex=True` crashed** with `NameError`: the existing-chunk lookup only ran when re-indexing was off. | `indexer.py` v1 | Lookup runs in both modes; test added. |
+| 8 | README said MIT license but the repository had no LICENSE file; author line said "M.Sc. Data Science". | — | LICENSE added; degree corrected to Master of Mathematics (Data Science). |
+
 
 ---
 
@@ -125,12 +145,20 @@ cp .env.example .env
 # Edit .env: tambahkan ANTHROPIC_API_KEY=sk-ant-...
 ```
 
+### Re-index after the October 2026 chunker fix
+
+```bash
+# put the annual report PDF in data/raw/ first
+PYTHONPATH=. python -c "from src.rag.indexer import RAGIndexer; print(RAGIndexer('data/vectorstore').index_pdf('data/raw/bbca_laporan_tahunan_2023.pdf', company='BBCA', year=2023, force_reindex=True))"
+```
+
 ### Verify Setup
 
 ```bash
 python -c "import anthropic; print('✅ SDK:', anthropic.__version__)"
 python -c "import chromadb; print('✅ ChromaDB:', chromadb.__version__)"
-PYTHONPATH=. pytest tests/ -q  # 143 tests should pass
+PYTHONPATH=. pytest tests/ -q  # 151 unit tests (API calls are mocked)
+python scripts/check_model.py  # real API call: confirms CLAUDE_MODEL exists for your key
 ```
 
 ---
@@ -222,7 +250,7 @@ finsight-idx/
 │   │   └── qa_chain.py     # RAG Q&A with citations
 │   └── mcp/
 │       └── server.py       # FastMCP (4 tools, 2 prompts, 1 resource)
-├── tests/                  # 143 unit tests (all passing)
+├── tests/                  # 151 unit tests (Claude API mocked)
 ├── notebooks/
 │   └── demo_finsight.ipynb # Interactive demo (Colab-ready)
 ├── data/
@@ -238,20 +266,20 @@ finsight-idx/
 
 **AI & LLM:** Anthropic Claude API · sentence-transformers · BERTopic
 
-**Storage:** ChromaDB (24.8K chunks indexed)
+**Storage:** ChromaDB (persistent, cosine HNSW)
 
 **Document Processing:** pdfplumber
 
 **Serving:** FastMCP (MCP Server)
 
-**Quality:** pytest (143 tests) · black · ruff · mypy · rouge-score
+**Quality:** pytest (151 unit tests) · ruff · rouge-score · GitHub Actions
 
 ---
 
 ## 🧪 Running Tests
 
 ```bash
-PYTHONPATH=. pytest tests/ -v        # All 143 tests
+PYTHONPATH=. pytest tests/ -v        # All 151 tests
 PYTHONPATH=. pytest tests/ --cov=src  # With coverage
 ```
 
@@ -267,7 +295,7 @@ PYTHONPATH=. pytest tests/ --cov=src  # With coverage
 ## 👤 Author
 
 **Agatha Silalahi** — Data Scientist, Bank Indonesia Institute (BINS)
-M.Sc. Data Science, Universitas Indonesia | AI/ML Engineering, Pacmann
+Master of Mathematics (Data Science), Universitas Indonesia | AI/ML Engineering, Pacmann
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Agatha_Silalahi-0077B5?logo=linkedin)](https://www.linkedin.com/in/agatha-silalahi-722507215/)
 [![GitHub](https://img.shields.io/badge/GitHub-Agathahah-181717?logo=github)](https://github.com/Agathahah)
@@ -279,5 +307,5 @@ M.Sc. Data Science, Universitas Indonesia | AI/ML Engineering, Pacmann
 MIT License — see [LICENSE](LICENSE) for details.
 
 <div align="center">
-<sub>Built with ❤️ using Claude API · FinSight IDX © 2024 Agatha Silalahi</sub>
+<sub>Built with ❤️ using Claude API · FinSight IDX © 2026 Agatha Silalahi</sub>
 </div>

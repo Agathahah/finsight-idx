@@ -34,6 +34,7 @@ from typing import Optional
 from loguru import logger
 
 from src.api.client import FinancialTask, analyze_financial_text
+from src.config import claude_model
 
 try:
     from rouge_score import rouge_scorer  # type: ignore
@@ -443,7 +444,7 @@ class SummaryEvaluator:
 
     def __init__(
         self,
-        judge_model: str = "claude-sonnet-4-20250514",
+        judge_model: str | None = None,
         output_dir: str | Path = "data/processed",
     ) -> None:
         """
@@ -455,7 +456,7 @@ class SummaryEvaluator:
             raise ImportError(
                 "rouge-score required. Run: pip install rouge-score"
             )
-        self.judge_model = judge_model
+        self.judge_model = judge_model or claude_model()
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self._rouge = rouge_scorer.RougeScorer(

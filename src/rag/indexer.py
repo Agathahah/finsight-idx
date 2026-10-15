@@ -34,7 +34,7 @@ try:
 except ImportError:
     HAS_ST = False
 
-from src.nlp.pdf_extractor import PDFExtractor
+from src.nlp.pdf_extractor import PAGE_BREAK, PDFExtractor
 
 
 # ---------------------------------------------------------------------------
@@ -121,45 +121,44 @@ class TextChunker:
         self.overlap = overlap
 
     def chunk(self, text: str) -> list[str]:
+        """Split text into overlapping chunks (text only)."""
+        return [c for c, _ in self.chunk_with_offsets(text)]
+
+    def chunk_with_offsets(self, text: str) -> list[tuple[str, int]]:
         """
-        Split text into overlapping chunks.
+        Split text into overlapping chunks and return (chunk, start_offset).
 
-        Args:
-            text: Input text to chunk.
+        A sentence boundary (". ") is used only if it falls in the second half
+        of the window; otherwise the window is cut at ``chunk_size``. Each step
+        advances by at least ``chunk_size - overlap`` characters.
 
-        Returns:
-            List of text chunks.
+        Bug fixed in the October 2026 audit: the first version accepted a
+        boundary right after ``start`` and then advanced by one character, so
+        it produced runs of near-identical chunks ("am Kategori", "m Kategori",
+        "Kategori" ...). The stored index had 24,875 chunks but only 20,833
+        distinct texts, with an average length of 88 characters instead of 256.
         """
         if not text or not text.strip():
             return []
-
         if len(text) <= self.chunk_size:
-            return [text.strip()]
+            return [(text.strip().replace(PAGE_BREAK, "\n\n"), 0)]
 
-        chunks: list[str] = []
+        step_min = max(1, self.chunk_size - self.overlap)
+        chunks: list[tuple[str, int]] = []
         start = 0
-
         while start < len(text):
             end = start + self.chunk_size
-
             if end >= len(text):
-                chunk = text[start:].strip()
-                if chunk:
-                    chunks.append(chunk)
+                piece = text[start:].strip()
+                if piece:
+                    chunks.append((piece.replace(PAGE_BREAK, "\n\n"), start))
                 break
-
-            # Find nearest sentence boundary (period + space)
-            boundary = text.rfind(". ", start, end)
-            if boundary == -1 or boundary <= start:
-                boundary = end
-
-            chunk = text[start:boundary + 1].strip()
-            if chunk:
-                chunks.append(chunk)
-
-            # Move forward with overlap
-            start = max(start + 1, boundary + 1 - self.overlap)
-
+            boundary = text.rfind(". ", start + self.chunk_size // 2, end)
+            cut = boundary + 1 if boundary != -1 else end
+            piece = text[start:cut].strip()
+            if piece:
+                chunks.append((piece.replace(PAGE_BREAK, "\n\n"), start))
+            start = max(start + step_min, cut - self.overlap)
         return chunks
 
 
@@ -240,11 +239,13 @@ class RAGIndexer:
 
         # Check if already indexed
         collection = self._get_collection()
+        # Look up existing chunks in both modes. v1 only did this when
+        # force_reindex was False, so force_reindex=True raised NameError.
+        existing = collection.get(
+            where={"document_id": document_id},
+            limit=1,
+        )
         if not force_reindex:
-            existing = collection.get(
-                where={"document_id": document_id},
-                limit=1,
-            )
             if existing["ids"]:
                 # Fix: paginated count avoids SQL variables error on large collections
                 count = self._count_document_chunks(collection, document_id)
@@ -395,13 +396,15 @@ class RAGIndexer:
         global_index = 0
 
         for section in doc.sections:
-            text_chunks = self.chunker.chunk(section.text)
-            for chunk_text in text_chunks:
+            for chunk_text, offset in self.chunker.chunk_with_offsets(section.text):
+                # Pages inside a section are joined with PAGE_BREAK, so the
+                # number of breaks before the chunk gives its real page.
+                page = section.start_page + section.text.count(PAGE_BREAK, 0, offset)
                 chunk = DocumentChunk(
                     chunk_id="",
                     document_id=document_id,
                     text=chunk_text,
-                    page_number=section.start_page,
+                    page_number=page,
                     section_title=section.title,
                     section_type=section.section_type,
                     chunk_index=global_index,
