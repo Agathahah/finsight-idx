@@ -104,6 +104,10 @@ SECTION_PATTERNS: dict[str, list[str]] = {
     ],
 }
 
+# Separator between pages inside a section. Lets the indexer map each chunk
+# back to the page it came from (used for citations).
+PAGE_BREAK = "\f"
+
 # Heading detection: short lines in title case or ALL CAPS
 HEADING_REGEX = re.compile(
     r"^(?:[A-Z][A-Z\s\d]{3,60}|[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,6})$"
@@ -243,7 +247,7 @@ class PDFExtractor:
                     title=current_title,
                     start_page=current_start,
                     end_page=page.page_number - 1,
-                    text="\n\n".join(current_texts),
+                    text=PAGE_BREAK.join(current_texts),
                 )
                 if section:
                     sections.append(section)
@@ -260,7 +264,7 @@ class PDFExtractor:
                         title=current_title,
                         start_page=current_start,
                         end_page=page.page_number,
-                        text="\n\n".join(current_texts),
+                        text=PAGE_BREAK.join(current_texts),
                     )
                     if section:
                         sections.append(section)
@@ -273,7 +277,7 @@ class PDFExtractor:
                 title=current_title,
                 start_page=current_start,
                 end_page=pages[-1].page_number if pages else current_start,
-                text="\n\n".join(current_texts),
+                text=PAGE_BREAK.join(current_texts),
             )
             if section:
                 sections.append(section)
@@ -289,8 +293,10 @@ class PDFExtractor:
         text: str,
     ) -> Optional[DocumentSection]:
         """Build a DocumentSection, returning None if text is too short."""
-        clean = text.strip()
-        if len(clean) < self.min_section_chars:
+        # Strip spaces/newlines only: a leading PAGE_BREAK (empty first page)
+        # must stay, or every page number in the section shifts by one.
+        clean = text.strip(" \n\t\r")
+        if len(clean.replace(PAGE_BREAK, "")) < self.min_section_chars:
             return None
 
         section_type = self._classify_section(title + " " + clean[:200])
