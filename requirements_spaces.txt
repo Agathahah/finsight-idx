@@ -2,6 +2,14 @@
 # Pinned to the versions the index was built and tested with: ChromaDB's
 # on-disk format and the embedding model must match between indexing and serving.
 # Gradio itself comes from `sdk_version` in the Space README (Docker installs it explicitly).
+#
+# The Space build runs, in ONE pip command:
+#   pip install -r requirements.txt gradio[oauth,mcp]==<sdk_version> "uvicorn>=0.14.0" "websockets>=10.4" spaces
+# so nothing here may conflict with gradio's `mcp` extra (mcp<2, pydantic<=2.12.5).
+# Not listed on purpose:
+#   fastmcp   only the MCP server (src/mcp/server.py) uses it, not the web app; it needs mcp>=2
+#   pydantic  left to the resolver; gradio[mcp] caps it below the version used locally
+# `python scripts/build_space.py --check-deps` replays that command as a dry run.
 anthropic==1.13.0
 chromadb==1.5.9
 sentence-transformers==6.1.0
@@ -13,7 +21,5 @@ tenacity==9.2.1
 python-dotenv==1.2.4
 pandas==3.0.6
 numpy==2.5.4
-fastmcp==4.1.0
 rouge-score==0.1.2
 httpx==0.28.1
-pydantic==2.14.1
