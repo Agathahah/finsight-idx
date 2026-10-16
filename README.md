@@ -102,35 +102,37 @@ Two harnesses, both run against the real index and a golden set whose pages and 
 
 | Harness | Question it answers | Command |
 |---|---|---|
-| `src/rag/eval_retrieval.py` | Does the right page reach the model? recall@5 and MRR, hybrid vs. semantic-only | `python -m src.rag.eval_retrieval eval/golden_questions.jsonl --k 5` |
-| `src/rag/eval_answers.py` | Is the answer's figure right, is the cited page right, does it refuse when the report has no answer? | `python -m src.rag.eval_answers eval/golden_questions.jsonl --limit 20` |
+| `src/rag/eval_retrieval.py` | Does the right page reach the model? recall@k, MRR and context hit for hybrid, semantic-only and BM25-only | `python -m src.rag.eval_retrieval eval/golden_questions.jsonl --k 10` |
+| `src/rag/eval_answers.py` | Is the answer's figure right, is the cited page right, does it refuse when the report has no answer? (paid: ~$0.01 per question) | `python -m src.rag.eval_answers eval/golden_questions.jsonl --limit 58 --top-k 10 --retrieval-mode bm25` |
 
 Golden set: 58 questions (53 answerable, 5 that must be refused) in six groups: financial highlights, ratios, management narrative, governance, financial statements and scanned pages. Questions were drafted with Claude from the PDF text; every figure and page was checked by the author against the PDF and the index (`eval/golden_questions.jsonl`).
 
-Retrieval, k = 5, 53 answerable questions, 95% Wilson intervals in brackets:
+**Retrieval.** 53 answerable questions, 95% Wilson intervals in brackets. Each index version was re-built from the PDF and measured on the same questions:
 
-| Index | Retriever | recall@5 (page) | MRR | context hit@5 |
-|---|---|---|---|---|
-| v2 (audit chunker) | Hybrid | 0.30 | 0.13 | – |
-| v2 | Semantic only | 0.15 | 0.06 | – |
-| **v3** (no gaps, contextual headers) | **Hybrid** | **0.40** [0.28, 0.53] | **0.17** | **0.45** [0.33, 0.59] |
-| v3 | Semantic only | 0.15 [0.08, 0.27] | 0.07 | 0.21 [0.12, 0.33] |
+| Index | Retriever | k | recall@k (page) | MRR | context hit@k |
+|---|---|---|---|---|---|
+| v2 (audit chunker) | Hybrid | 5 | 0.30 | 0.13 | – |
+| v3 (no gaps, contextual headers) | Hybrid | 5 | 0.40 [0.28, 0.53] | 0.17 | 0.45 [0.33, 0.59] |
+| v4 (+ one chunk per table row) | Semantic only | 5 | 0.25 [0.15, 0.38] | 0.11 | 0.34 [0.23, 0.47] |
+| v4 | Hybrid | 5 | 0.58 [0.45, 0.71] | 0.27 | 0.64 [0.51, 0.76] |
+| v4 | BM25 only | 5 | 0.62 [0.49, 0.74] | 0.38 | 0.68 [0.55, 0.79] |
+| v4 | Hybrid | 10 | 0.68 [0.55, 0.79] | 0.28 | 0.70 [0.56, 0.80] |
+| **v4** | **BM25 only** | **10** | **0.70** [0.56, 0.80] | **0.39** | **0.81** [0.69, 0.89] |
 
-*Page recall* counts a hit when a retrieved chunk is on a labelled page. *Context hit* counts a hit when the expected figure appears anywhere in the five chunks, whatever the page.
+*Page recall* counts a hit when a retrieved chunk is on a labelled page. *Context hit* counts a hit when the expected figure appears anywhere in the retrieved chunks, whatever the page. The deployed app uses the last row (`RETRIEVAL_MODE=bm25`, `RAG_TOP_K=10`).
 
 What the numbers say:
-- Hybrid beats semantic-only on the same questions: 13 questions are found only by hybrid, none only by semantic (McNemar exact p < 0.001). BM25 matters for financial terms the multilingual MiniLM does not separate well.
-- Narrative and financial-statement questions do best (6 of 10 pages found). Single figures from the highlight tables do worst (3 of 10): the retriever prefers the management-discussion pages that talk *about* total assets or net interest income over the table row that holds the number.
-- Fixing the chunker (row 14 of the audit) moved page recall from 0.30 to 0.40. The next step targets the table problem directly (see "Next experiments").
+- **Table rows were the biggest single gain.** Indexing each row of a financial table as its own sentence (`Total Aset: 2023 = 1.408.107; 2022 = 1.314.732 (dalam miliar Rupiah)`) moved hybrid page recall@5 from 0.40 to 0.58. Fixing the chunker (audit row 14) had moved it from 0.30 to 0.40.
+- **Embeddings add little on this document.** BM25 alone matches or beats hybrid at both k, and the semantic-only retriever finds a quarter of the pages. The page-level differences between BM25 and hybrid are small (McNemar p = 0.73 at k = 5, p = 1.0 at k = 10), but at k = 10 BM25 puts the expected figure in front of the model for 6 questions hybrid misses and none the other way (p = 0.03). The likely reason: questions name the exact financial term ("NPL bruto", "BOPO"), and MiniLM, trained on general multilingual text with a 128-token limit, separates those terms poorly. Hybrid stays available (`RETRIEVAL_MODE=hybrid`) for paraphrased questions.
+- **More context helps.** Going from 5 to 10 chunks with BM25 raises context hit from 0.68 to 0.81 (7 questions gained, none lost, p = 0.02), at roughly double the input tokens per question.
+- **What still fails.** Ratios are always found (10/10). Governance questions ("who chairs the audit committee") find the figure but rarely the labelled page (3/10 pages), because names repeat across many profile pages. Scanned pages are found but OCR text rarely matches the expected figure exactly (1/3 context hits).
 
-| Answer metric | Value |
-|---|---|
-| Answer accuracy | _pending: run after the table-row experiment_ |
-| Citation accuracy | |
-| Correct refusals (unanswerable questions) | |
-| Mean latency / cost per question | |
+**Answers.** Same golden set, Claude Sonnet 4.5, scored automatically: a figure counts as correct when its value matches the expected one in any scale (juta, miliar, triliun) within rounding; a citation counts as correct when the cited page is a labelled page or contains the expected figure. The table is generated from `reports/` by `scripts/update_readme_eval.py`.
 
-Next experiments, each measured on the same golden set: (1) index each table row as its own chunk with its label, unit and year columns; (2) re-rank the top 20 with a multilingual cross-encoder; (3) a multilingual embedding model with a longer input limit than MiniLM's 128 tokens.
+<!-- answer-table:start -->
+<!-- answer-table:end -->
+
+Next experiments, each measured on the same golden set: (1) re-rank the top 20 with a multilingual cross-encoder; (2) a multilingual embedding model with a longer input limit than MiniLM's 128 tokens, to see whether hybrid can beat BM25; (3) query expansion for governance questions (names, roles).
 
 Raw reports are saved in `reports/`.
 
@@ -164,7 +166,7 @@ I inspected the stored vector index and the code. Findings and fixes:
 | Ingestion quality | Header/footer removal, OCR fallback, page-accurate citations | `src/nlp/pdf_extractor.py`, `src/rag/indexer.py` |
 | Index versioning | Manifest checked at start-up; mismatched index refused | `src/rag/manifest.py` |
 | Evaluation | Retrieval (recall@k, MRR) and answer-level (accuracy, citation, refusal) on a golden set | `src/rag/eval_*.py`, `eval/` |
-| Guardrails | Question/ticker/year validation, 5 req/min per visitor, 60 req/min global, queue limit | `src/serving/guard.py`, `app.py` |
+| Guardrails | Question/ticker/year validation, 5 req/min per visitor, 20 req/min global, daily cost ceiling (`DAILY_BUDGET_USD`, reset 00:00 UTC), queue limit; the Anthropic Console monthly limit is the hard cap | `src/serving/guard.py`, `app.py` |
 | Observability | `logs/queries.jsonl`: status, latency, tokens, cost, cited pages (question text off by default) | `src/serving/telemetry.py` |
 | Reproducible deploy | Pinned runtime requirements, Docker image with the embedding model baked in, scripted Space upload | `requirements_spaces.txt`, `Dockerfile`, `scripts/build_space.py` |
 
@@ -173,11 +175,13 @@ Operate it:
 ```bash
 python -m src.serving.telemetry logs/queries.jsonl     # p50/p95 latency, error rate, cost
 python scripts/build_space.py                           # dry run: build/space + checks
-python scripts/build_space.py --push --set-config       # deploy to the Hugging Face Space
+python scripts/build_space.py --push --set-config --wait   # deploy and wait until the Space runs
+python scripts/smoke_test.py Agatha1911/finsight-idx --paid  # guardrails + one real question on the live Space
+python scripts/update_readme_eval.py                    # refresh the answer table from reports/
 docker build -t finsight-idx . && docker run --rm -p 7860:7860 --env-file .env finsight-idx
 ```
 
-Known limits: one document is indexed (BBCA 2023), so company/year filters are not yet exercised; OCR text can contain recognition errors and is marked as such; the rate limiter is in-process memory, which is enough for one Space replica but not for several.
+Known limits: one document is indexed (BBCA 2023), so company/year filters are not yet exercised; OCR text can contain recognition errors and is marked as such; the rate limiter and the daily budget live in process memory (the budget is re-read from today's query log after a restart), which is enough for one Space replica but not for several; the query log on a free Space is lost when the Space restarts.
 
 ---
 
@@ -322,7 +326,7 @@ finsight-idx/
 │   │   └── telemetry.py    # JSONL query log + summary
 │   └── mcp/
 │       └── server.py       # FastMCP (4 tools, 2 prompts, 1 resource)
-├── scripts/                # check_model, show_page, build_space
+├── scripts/                # check_model, show_page, build_space, smoke_test, update_readme_eval
 ├── eval/                   # golden sets (hand-labelled)
 ├── app.py                  # Gradio demo (Hugging Face Space)
 ├── Dockerfile

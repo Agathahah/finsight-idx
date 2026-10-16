@@ -8,11 +8,15 @@ spend the whole budget.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import threading
 import time
 from collections import defaultdict, deque
+from datetime import date, datetime, timezone
+from pathlib import Path
+from typing import Callable, Optional
 
 MIN_QUESTION_CHARS = 5
 MAX_QUESTION_CHARS = int(os.getenv("MAX_QUESTION_CHARS", "500"))
@@ -91,3 +95,63 @@ class RateLimiter:
             q.append(now)
             self._all.append(now)
             return True, 0.0
+
+
+def _utc_today() -> date:
+    return datetime.now(timezone.utc).date()
+
+
+class DailyBudget:
+    """Soft ceiling on estimated API spend per UTC day.
+
+    The rate limiter caps requests per minute, but 20 requests a minute for
+    an hour still drains a small monthly budget. Once today's estimated cost
+    reaches ``limit_usd`` the demo stops calling the API until midnight UTC.
+    The monthly spend limit in the Anthropic Console remains the hard cap.
+    ``limit_usd`` 0 disables the check.
+    """
+
+    def __init__(self, limit_usd: Optional[float] = None,
+                 today: Callable[[], date] = _utc_today) -> None:
+        self.limit = float(os.getenv("DAILY_BUDGET_USD", "0") or 0) if limit_usd is None else limit_usd
+        self._today = today
+        self._day = today()
+        self._spent = 0.0
+        self._lock = threading.Lock()
+
+    def _roll(self) -> None:
+        day = self._today()
+        if day != self._day:
+            self._day, self._spent = day, 0.0
+
+    @property
+    def spent(self) -> float:
+        with self._lock:
+            self._roll()
+            return self._spent
+
+    def available(self) -> bool:
+        if not self.limit:
+            return True
+        return self.spent < self.limit
+
+    def add(self, usd: float) -> None:
+        with self._lock:
+            self._roll()
+            self._spent += max(usd, 0.0)
+
+    def seed_from_log(self, path: str | Path) -> None:
+        """Count today's spend already in the query log (survives an app restart)."""
+        p = Path(path)
+        if not p.exists():
+            return
+        today = self._today().isoformat()
+        total = 0.0
+        for line in p.read_text(encoding="utf-8").splitlines():
+            try:
+                rec = json.loads(line)
+            except ValueError:
+                continue
+            if str(rec.get("ts", "")).startswith(today):
+                total += float(rec.get("cost_usd") or 0)
+        self.add(total)

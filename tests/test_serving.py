@@ -66,3 +66,40 @@ def test_log_summary(tmp_path):
     assert s["requests"] == 5 and s["by_status"]["ok"] == 3
     assert s["error_rate"] == 0.2
     assert s["latency_ms_p50"] == 200 and s["latency_ms_p95"] == 300
+
+
+# -- daily budget -------------------------------------------------------------
+
+def test_daily_budget_stops_and_resets_next_day():
+    from datetime import date
+    from src.serving.guard import DailyBudget
+    day = [date(2026, 10, 16)]
+    b = DailyBudget(limit_usd=0.05, today=lambda: day[0])
+    b.add(0.03)
+    assert b.available()
+    b.add(0.03)
+    assert not b.available()
+    day[0] = date(2026, 10, 17)
+    assert b.available() and b.spent == 0
+
+
+def test_daily_budget_zero_means_off():
+    from src.serving.guard import DailyBudget
+    b = DailyBudget(limit_usd=0)
+    b.add(100)
+    assert b.available()
+
+
+def test_daily_budget_counts_todays_log_after_restart(tmp_path):
+    import json
+    from datetime import date
+    from src.serving.guard import DailyBudget
+    log = tmp_path / "q.jsonl"
+    log.write_text("\n".join(json.dumps(r) for r in [
+        {"ts": "2026-10-15T23:59:00+00:00", "cost_usd": 9.0},
+        {"ts": "2026-10-16T01:00:00+00:00", "cost_usd": 0.02},
+        {"ts": "2026-10-16T02:00:00+00:00", "cost_usd": 0.03},
+    ]) + "\nnot json\n")
+    b = DailyBudget(limit_usd=1, today=lambda: date(2026, 10, 16))
+    b.seed_from_log(log)
+    assert round(b.spent, 4) == 0.05
