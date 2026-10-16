@@ -21,7 +21,7 @@ from typing import Optional
 
 from loguru import logger
 
-from src.api.client import get_client
+from src.api.client import get_client, sampling_kwargs
 from src.rag.retriever import RAGRetriever, RetrievedChunk
 from src.config import claude_model
 
@@ -200,7 +200,7 @@ class FinancialQAChain:
         response = get_client().messages.create(
             model=self.model,
             max_tokens=1024,
-            temperature=0.1,
+            **sampling_kwargs(0.1),
             system=QA_SYSTEM_PROMPT,
             messages=[{
                 "role": "user",

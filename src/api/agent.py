@@ -24,7 +24,7 @@ from typing import Optional
 
 from loguru import logger
 
-from src.api.client import get_client
+from src.api.client import get_client, sampling_kwargs
 from src.config import claude_model
 from src.api.tools import (
     FinancialAnalystAgent,
@@ -157,7 +157,7 @@ Berikan analisis sentimen dalam format JSON yang diminta."""
         response = get_client().messages.create(
             model=claude_model(),
             max_tokens=512,
-            temperature=0.1,
+            **sampling_kwargs(0.1),
             system=SENTIMENT_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_message}],
         )
@@ -289,7 +289,7 @@ def generate_markdown_report(
     response = get_client().messages.create(
         model=claude_model(),
         max_tokens=3000,
-        temperature=0.2,
+        **sampling_kwargs(0.2),
         system=REPORT_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_message}],
     )
