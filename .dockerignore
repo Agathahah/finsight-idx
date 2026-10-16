@@ -1,0 +1,14 @@
+.git
+.venv
+.env
+**/__pycache__
+**/.DS_Store
+notebooks
+tests
+eval
+reports
+logs
+build
+data/raw
+data/processed
+data/vectorstore_v1_backup
