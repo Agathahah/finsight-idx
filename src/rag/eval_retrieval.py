@@ -103,7 +103,10 @@ def main() -> None:
     semantic = evaluate(lambda q, it: retriever.retrieve_semantic_only(
         q, top_k=args.k, where_filter=retriever._build_filter(it.get("company"), it.get("year"), None)),
         golden, args.k)
-    report = {"hybrid": hybrid, "semantic_only": semantic}
+    lexical = evaluate(lambda q, it: retriever._bm25_search_corpus(
+        q, retriever._build_filter(it.get("company"), it.get("year"), None), args.k),
+        golden, args.k)
+    report = {"hybrid": hybrid, "semantic_only": semantic, "bm25_only": lexical}
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     print(json.dumps(report, indent=2, ensure_ascii=False))
