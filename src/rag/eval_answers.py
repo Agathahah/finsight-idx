@@ -92,17 +92,36 @@ def score_one(item: dict, answer: str) -> dict:
     }
 
 
-def evaluate(ask_fn: Callable[[dict], object], golden: list[dict]) -> dict:
-    """``ask_fn(item)`` returns an object with answer, input_tokens, output_tokens."""
-    per_q = []
-    for item in golden:
+class EvalAborted(RuntimeError):
+    """The first questions all failed: almost certainly configuration, not quality."""
+
+
+def evaluate(ask_fn: Callable[[dict], object], golden: list[dict], abort_after: int = 3) -> dict:
+    """``ask_fn(item)`` returns an object with answer, input_tokens, output_tokens.
+
+    A failing question (API error, timeout) is recorded and the run continues,
+    so one bad call does not throw away the money already spent. If the first
+    ``abort_after`` questions all fail, the run stops: that is a setup problem
+    (API key, model id, credit), and continuing would only repeat it.
+    """
+    per_q, errors = [], []
+    for n, item in enumerate(golden, 1):
         t0 = time.perf_counter()
-        resp = ask_fn(item)
+        try:
+            resp = ask_fn(item)
+        except Exception as exc:  # noqa: BLE001 - recorded and reported
+            errors.append({"question": item["question"], "error": f"{type(exc).__name__}: {exc}"[:300]})
+            print(f"  [{n}/{len(golden)}] ERROR {errors[-1]['error']}", flush=True)
+            if len(errors) == n == abort_after:
+                raise EvalAborted(f"first {abort_after} questions failed; last error: {errors[-1]['error']}")
+            continue
         latency = (time.perf_counter() - t0) * 1000
         s = score_one(item, resp.answer)
         s.update(question=item["question"], latency_ms=round(latency, 1),
-                 input_tokens=resp.input_tokens, output_tokens=resp.output_tokens)
+                 input_tokens=resp.input_tokens, output_tokens=resp.output_tokens,
+                 answer=resp.answer[:800])
         per_q.append(s)
+        print(f"  [{n}/{len(golden)}] {'OK  ' if s['correct'] else 'FAIL'} {item['question'][:70]}", flush=True)
 
     ans = [q for q in per_q if q["answerable"]]
     unans = [q for q in per_q if not q["answerable"]]
@@ -122,8 +141,10 @@ def evaluate(ask_fn: Callable[[dict], object], golden: list[dict]) -> dict:
         "mean_latency_ms": round(sum(q["latency_ms"] for q in per_q) / max(len(per_q), 1), 1),
         "total_tokens": {"input": tin, "output": tout},
         "cost_usd": estimate_cost_usd(tin, tout),
+        "errors": errors,
         "failures": [
-            {"question": q["question"], "abstained": q["abstained"], "cited_pages": q.get("cited_pages")}
+            {"question": q["question"], "abstained": q["abstained"], "cited_pages": q.get("cited_pages"),
+             "answer": q.get("answer", "")[:300]}
             for q in per_q if not q["correct"]
         ],
         "per_question": per_q,
@@ -135,7 +156,7 @@ def markdown_summary(report: dict) -> str:
         return "–" if v is None else f"{v:.0%}"
     return "\n".join([
         "| Metric | Value |", "|---|---|",
-        f"| Questions | {report['questions']} |",
+        f"| Questions scored | {report['questions']} (errors: {len(report.get('errors', []))}) |",
         f"| Answer accuracy (answerable) | {pct(report['answer_accuracy'])} |",
         f"| Citation accuracy | {pct(report['citation_accuracy'])} |",
         f"| False refusals | {pct(report['false_refusal_rate'])} |",
@@ -159,11 +180,19 @@ def main() -> None:
     est = estimate_cost_usd(2500 * len(golden), 400 * len(golden))
     print(f"Running {len(golden)} questions (rough cost estimate ${est:.3f})")
     qa = FinancialQAChain(persist_dir=args.persist_dir)
-    report = evaluate(lambda it: qa.ask(it["question"], company_filter=it.get("company"),
-                                        year_filter=it.get("year")), golden)
+    try:
+        report = evaluate(lambda it: qa.ask(it["question"], company_filter=it.get("company"),
+                                            year_filter=it.get("year")), golden)
+    except EvalAborted as exc:
+        raise SystemExit(f"\nStopped: {exc}\nCheck ANTHROPIC_API_KEY, CLAUDE_MODEL "
+                         "(python scripts/check_model.py) and your API credit.")
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     print(markdown_summary(report))
+    if report["errors"]:
+        print(f"\n{len(report['errors'])} question(s) errored (not scored):")
+        for e in report["errors"][:5]:
+            print(" -", e["question"][:60], "|", e["error"][:120])
     if report["failures"]:
         print("\nFailures:")
         for f in report["failures"]:

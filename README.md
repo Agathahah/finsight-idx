@@ -7,7 +7,7 @@
 [![Claude API](https://img.shields.io/badge/Claude_API-Anthropic-D97706)](https://www.anthropic.com/)
 [![FastMCP](https://img.shields.io/badge/FastMCP-MCP_Server-6366F1)](https://gofastmcp.com/)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-22C55E)](https://docs.trychroma.com/)
-[![Tests](https://img.shields.io/badge/unit_tests-200-22C55E)](tests/)
+[![Tests](https://img.shields.io/badge/unit_tests-206-22C55E)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Agathahah/finsight-idx/blob/main/notebooks/demo_finsight.ipynb)
 
@@ -107,10 +107,10 @@ Two harnesses, both run against the real index and a golden set whose pages and 
 
 Results (BBCA annual report 2023, index schema v2):
 
-| Retriever | recall@5 | MRR |
-|---|---|---|
-| Hybrid (embeddings + BM25, RRF) | _run and fill in_ | |
-| Semantic only | | |
+| Retriever | recall@5 (page) | MRR | context hit@5 |
+|---|---|---|---|
+| Hybrid (embeddings + BM25, RRF) | _run and fill in_ | | |
+| Semantic only | | | |
 
 | Answer metric | Value |
 |---|---|
@@ -140,6 +140,7 @@ I inspected the stored vector index and the code. Findings and fixes:
 | 11 | **The deployed demo could not tell it was serving the broken index.** | The Space still held the v1 vector store. | `index_manifest.json` records schema version, embedding model, chunking and PDF hash; the app refuses an incompatible index (`FINSIGHT_STRICT_INDEX=1`). |
 | 12 | **All visitors of the Space shared one agent conversation.** | `app.py` v1 kept the history in a module-level list. | History lives in a per-session `gr.State` and is trimmed to `MAX_AGENT_MESSAGES`. |
 | 13 | **No guardrails on a paid API.** No input limits, no rate limit, raw exceptions shown to users, a new QA chain (embedding model + BM25 corpus) built for every question. | `app.py` v1 | `src/serving/`: input validation, per-visitor and global rate limits, one cached chain, generic errors with a request id, one JSON log line per request. |
+| 14 | **The audit's own chunker fix skipped text and split table rows.** Every step was forced to advance 192 characters even when the cut came earlier, so the text in between was never indexed; cuts also fell mid-number in tables. Found by the first golden-set run (page recall@5 0.30). | 1.8% of the report's characters were in no chunk; chunks such as "as Induk 48.639 …" had lost their row label. | Line-aware chunker with no gaps (test `test_no_text_is_skipped`), and each chunk prefixed with section, page, unit and year columns, e.g. `[Ikhtisar Data Keuangan · hal. 18 · dalam miliar Rupiah · kolom 2023 2022 …]`. Index schema v3. |
 
 
 
@@ -208,7 +209,7 @@ cat data/vectorstore/index_manifest.json      # schema version, OCR pages, empty
 ```bash
 python -c "import anthropic; print('✅ SDK:', anthropic.__version__)"
 python -c "import chromadb; print('✅ ChromaDB:', chromadb.__version__)"
-PYTHONPATH=. pytest tests/ -q  # 200 unit tests (API calls are mocked)
+PYTHONPATH=. pytest tests/ -q  # 206 unit tests (API calls are mocked)
 python scripts/check_model.py  # real API call: confirms CLAUDE_MODEL exists for your key
 ```
 
@@ -312,7 +313,7 @@ finsight-idx/
 ├── eval/                   # golden sets (hand-labelled)
 ├── app.py                  # Gradio demo (Hugging Face Space)
 ├── Dockerfile
-├── tests/                  # 200 unit tests (Claude API mocked)
+├── tests/                  # 206 unit tests (Claude API mocked)
 ├── notebooks/
 │   └── demo_finsight.ipynb # Interactive demo (Colab-ready)
 ├── data/
@@ -334,14 +335,14 @@ finsight-idx/
 
 **Serving:** FastMCP (MCP Server)
 
-**Quality:** pytest (200 unit tests) · ruff · rouge-score · GitHub Actions
+**Quality:** pytest (206 unit tests) · ruff · rouge-score · GitHub Actions
 
 ---
 
 ## 🧪 Running Tests
 
 ```bash
-PYTHONPATH=. pytest tests/ -v        # All 200 tests
+PYTHONPATH=. pytest tests/ -v        # All 206 tests
 PYTHONPATH=. pytest tests/ --cov=src  # With coverage
 ```
 
