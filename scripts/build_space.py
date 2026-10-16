@@ -106,7 +106,11 @@ def push(out: Path, space: str, set_config: bool, set_api_key: bool) -> None:
     )
     print("Uploaded:", commit)
     if set_config:
-        variables = {**VARIABLES, "CLAUDE_MODEL": os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5")}
+        variables = {**VARIABLES,
+                     "CLAUDE_MODEL": os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5"),
+                     # retrieval settings chosen from the golden-set evaluation (README)
+                     "RAG_TOP_K": os.getenv("RAG_TOP_K", "5"),
+                     "RETRIEVAL_MODE": os.getenv("RETRIEVAL_MODE", "hybrid")}
         for k, v in variables.items():
             api.add_space_variable(space, k, v)
         print("Variables set:", ", ".join(f"{k}={v}" for k, v in variables.items()))
