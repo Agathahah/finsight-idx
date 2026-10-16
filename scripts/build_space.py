@@ -4,6 +4,7 @@
     python scripts/build_space.py --push                   # upload, replacing every old file
     python scripts/build_space.py --push --set-config      # also set Space variables
     python scripts/build_space.py --push --set-api-key     # also store ANTHROPIC_API_KEY as a secret
+    python scripts/build_space.py --wait                   # only wait for the Space to finish building
 
 The old Space was uploaded by hand: it carried __pycache__, .DS_Store and an
 index built by the buggy chunker. This script uploads exactly the files the
@@ -17,6 +18,7 @@ import argparse
 import os
 import shutil
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -57,8 +59,10 @@ Not investment advice. Check every figure against the cited page.
 VARIABLES = {
     "FINSIGHT_STRICT_INDEX": "1",
     "RATE_LIMIT_PER_MINUTE": "5",
-    "RATE_LIMIT_GLOBAL_PER_MINUTE": "60",
+    "RATE_LIMIT_GLOBAL_PER_MINUTE": "20",
     "MAX_QUESTION_CHARS": "500",
+    # soft daily cap on estimated API cost; the Console monthly limit is the hard cap
+    "DAILY_BUDGET_USD": "0.30",
 }
 
 
@@ -95,13 +99,14 @@ def summarize(out: Path) -> None:
         sys.exit(f"Refusing to continue, unwanted files: {bad}")
 
 
-def push(out: Path, space: str, set_config: bool, set_api_key: bool) -> None:
+def push(out: Path, space: str, set_config: bool, set_api_key: bool, manifest: dict) -> None:
     from huggingface_hub import HfApi
     api = HfApi()
     print(f"Logged in as {api.whoami()['name']}; uploading to spaces/{space} ...")
     commit = api.upload_folder(
         folder_path=str(out), repo_id=space, repo_type="space",
-        commit_message="Deploy: rebuilt index (schema v2) and production serving path",
+        commit_message=f"Deploy: index schema v{manifest['schema_version']}, "
+                       f"retrieval {os.getenv('RETRIEVAL_MODE', 'hybrid')} top-{os.getenv('RAG_TOP_K', '5')}",
         delete_patterns=["*"],   # remove files that are no longer part of the app
     )
     print("Uploaded:", commit)
@@ -123,6 +128,32 @@ def push(out: Path, space: str, set_config: bool, set_api_key: bool) -> None:
     print(f"Space rebuilds now: https://huggingface.co/spaces/{space}")
 
 
+def wait_until_running(space: str, timeout_s: int = 1800, poll_s: int = 20,
+                       after_push: bool = False) -> None:
+    """Poll the Space until it runs; exit non-zero on a build or runtime error.
+
+    Right after an upload the Space still reports the old RUNNING container
+    for a short while, so after_push first waits for the stage to change.
+    """
+    from huggingface_hub import HfApi
+    api, last, t0 = HfApi(), None, time.time()
+    while after_push and time.time() - t0 < 180 and api.get_space_runtime(space).stage == "RUNNING":
+        time.sleep(10)
+    while time.time() - t0 < timeout_s:
+        runtime = api.get_space_runtime(space)
+        stage = runtime.stage
+        if stage != last:
+            print(f"[{int(time.time() - t0):>4}s] {stage}")
+            last = stage
+        if stage == "RUNNING":
+            print(f"Live: https://huggingface.co/spaces/{space}")
+            return
+        if stage in {"BUILD_ERROR", "RUNTIME_ERROR", "CONFIG_ERROR", "NO_APP_FILE"}:
+            sys.exit(f"Space failed ({stage}). Open the Logs tab: https://huggingface.co/spaces/{space}?logs=container")
+        time.sleep(poll_s)
+    sys.exit(f"Still {last} after {timeout_s // 60} min. Check https://huggingface.co/spaces/{space}?logs=build")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--space", default=DEFAULT_SPACE)
@@ -131,6 +162,7 @@ def main() -> None:
     ap.add_argument("--push", action="store_true")
     ap.add_argument("--set-config", action="store_true")
     ap.add_argument("--set-api-key", action="store_true")
+    ap.add_argument("--wait", action="store_true", help="wait until the Space is RUNNING")
     args = ap.parse_args()
 
     try:
@@ -139,11 +171,16 @@ def main() -> None:
     except ImportError:
         pass
 
+    if args.wait and not args.push:
+        wait_until_running(args.space)
+        return
     out = Path(args.out)
-    build(out, Path(args.persist_dir))
+    manifest = build(out, Path(args.persist_dir))
     summarize(out)
     if args.push:
-        push(out, args.space, args.set_config, args.set_api_key)
+        push(out, args.space, args.set_config, args.set_api_key, manifest)
+        if args.wait:
+            wait_until_running(args.space, after_push=True)
     else:
         print("Dry run: nothing uploaded. Add --push to deploy.")
 
