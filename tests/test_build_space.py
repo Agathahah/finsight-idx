@@ -49,3 +49,16 @@ def test_refuses_index_without_manifest(tmp_path):
     store.mkdir()
     with pytest.raises(IndexVersionError):
         build_space.build(tmp_path / "space", store)
+
+
+def test_space_requirements_avoid_conflicts_with_gradio_mcp_extra():
+    """Spaces installs gradio[oauth,mcp] in the same pip command (mcp<2, pydantic<=2.12.5)."""
+    reqs = [l.split("==")[0].strip().lower() for l in (ROOT / "requirements_spaces.txt").read_text().splitlines()
+            if l.strip() and not l.startswith("#")]
+    assert "fastmcp" not in reqs and "mcp" not in reqs
+    assert "pydantic" not in reqs
+
+
+def test_space_pip_command_matches_builder(tmp_path):
+    cmd = build_space.space_pip_command(tmp_path / "requirements.txt")
+    assert "--dry-run" in cmd and f"gradio[oauth,mcp]=={build_space.GRADIO_VERSION}" in cmd and "spaces" in cmd
