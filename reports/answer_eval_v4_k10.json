@@ -1,0 +1,1049 @@
+{
+  "questions": 58,
+  "answer_accuracy": 0.7925,
+  "citation_accuracy": 0.9057,
+  "citations_found_by_page_text": 14,
+  "false_refusal_rate": 0.1509,
+  "correct_refusal_rate": 1.0,
+  "mean_latency_ms": 4872.7,
+  "total_tokens": {
+    "input": 109963,
+    "output": 14416
+  },
+  "cost_usd": 0.546129,
+  "errors": [],
+  "failures": [
+    {
+      "question": "Berapa nilai CASA BCA pada akhir 2023?",
+      "abstained": false,
+      "cited_pages": [
+        138,
+        224
+      ],
+      "answer": "Berdasarkan konteks yang diberikan, nilai CASA BCA pada akhir 2023 adalah **Rp36,7 triliun**.\n\n[Sumber: BBCA, 2023, PENDUKUNG BISNIS, hal. 138]\n\nInformasi tambahan terkait CASA BCA per Desember 2023:\n- CASA tumbuh 4,3% dibandingkan tahun sebelumnya [Sumber: BBCA, 2023, PENDUKUNG BISNIS, hal. 138]\n- "
+    },
+    {
+      "question": "Berapa target pertumbuhan kredit BCA untuk tahun 2024?",
+      "abstained": true,
+      "cited_pages": [
+        26,
+        35,
+        276,
+        283
+      ],
+      "answer": "Berdasarkan konteks yang diberikan, **informasi target pertumbuhan kredit BCA untuk tahun 2024 tidak tersedia dalam dokumen**.\n\nDokumen hanya menyebutkan bahwa BCA telah menetapkan target untuk tahun 2024 [Sumber: BBCA 2023, hal. 35] dan bahwa BCA menyampaikan beberapa target utama di 2024 [Sumber: "
+    },
+    {
+      "question": "Berapa target pertumbuhan CASA BCA di 2024?",
+      "abstained": true,
+      "cited_pages": [
+        26,
+        35,
+        283
+      ],
+      "answer": "Berdasarkan konteks yang diberikan, **informasi mengenai target pertumbuhan CASA BCA di tahun 2024 tidak tersedia dalam dokumen**.\n\nDokumen hanya menyebutkan bahwa BCA menetapkan beberapa target utama di 2024 [Sumber: BBCA, 2023, INVESTASI BARANG MODAL YANG INFORMASI MA, hal. 283] dan target untuk t"
+    },
+    {
+      "question": "Berapa target ROE BCA tahun 2024?",
+      "abstained": true,
+      "cited_pages": [
+        35,
+        116,
+        276,
+        283
+      ],
+      "answer": "Berdasarkan konteks yang diberikan, **informasi mengenai target ROE BCA tahun 2024 tidak tersedia dalam dokumen**.\n\nDokumen memuat beberapa referensi tentang target tahun 2024, termasuk:\n- Penyebutan bahwa BCA menetapkan target untuk tahun 2024 [Sumber: BBCA 2023, hal. 35]\n- Adanya bagian \"Prospek, "
+    },
+    {
+      "question": "Berapa volume transaksi mobile banking BCA tahun 2023?",
+      "abstained": false,
+      "cited_pages": [
+        10,
+        26,
+        121
+      ],
+      "answer": "Berdasarkan konteks yang tersedia, volume transaksi mobile banking BCA tahun 2023 adalah:\n\n**25,6 miliar transaksi** (untuk mobile & internet banking secara gabungan) dengan nilai transaksi sebesar **Rp24.825 triliun**. [Sumber: BBCA, 2023, Franchise Perbankan Transaksi, hal. 10]\n\nDokumen juga menye"
+    },
+    {
+      "question": "Berapa jumlah kantor cabang BCA pada akhir 2023?",
+      "abstained": true,
+      "cited_pages": [
+        112,
+        113,
+        114
+      ],
+      "answer": "Berdasarkan konteks yang tersedia, terdapat beberapa informasi mengenai jumlah kantor cabang BCA pada akhir 2023:\n\n**Kantor Cabang per Kantor Wilayah:**\n\nDari halaman 112-114, terdapat rincian kantor cabang BCA yang dikelompokkan per Kantor Wilayah:\n\n1. **Kantor Wilayah I**: 11 Kantor Cabang Utama ["
+    },
+    {
+      "question": "Berapa saldo kas BCA per 31 Desember 2023 di laporan posisi keuangan konsolidasian?",
+      "abstained": true,
+      "cited_pages": [],
+      "answer": "Informasi tidak tersedia dalam dokumen.\n\nKonteks yang diberikan hanya memuat halaman-halaman terkait Rekonsiliasi Permodalan (CC2) dan Komposisi Permodalan (CC1) dari Laporan Publikasi BBCA tahun 2023. Tidak ada informasi mengenai saldo kas pada Laporan Posisi Keuangan Konsolidasian per 31 Desember "
+    },
+    {
+      "question": "Berapa pendapatan bunga BCA tahun 2023 menurut laporan laba rugi?",
+      "abstained": true,
+      "cited_pages": [
+        6,
+        266,
+        620,
+        681
+      ],
+      "answer": "Berdasarkan konteks yang diberikan, **informasi tidak tersedia dalam dokumen**.\n\nKonteks yang tersedia hanya memuat:\n1. Kebijakan akuntansi mengenai pengakuan pendapatan bunga menggunakan metode suku bunga efektif [Sumber: BBCA 2023, hal. 620, 601]\n2. Pendapatan bunga dari aset keuangan yang diukur "
+    },
+    {
+      "question": "Berapa liabilitas imbalan pasca-kerja BCA per akhir 2023?",
+      "abstained": false,
+      "cited_pages": [
+        689,
+        739
+      ],
+      "answer": "Berdasarkan dokumen, liabilitas imbalan pasca-kerja BCA per akhir 2023 adalah **Rp8.884.242 juta** (atau sekitar Rp8,88 triliun). [Sumber: BBCA, 2023, INFORMASI TAMBAHAN, hal. 739]\n\nRincian komponen liabilitas imbalan pasca-kerja Bank (bersih) per 31 Desember 2023:\n- Program pensiun imbalan pasti da"
+    },
+    {
+      "question": "Apa saja hal audit utama dalam laporan auditor independen BCA 2023?",
+      "abstained": true,
+      "cited_pages": [
+        571,
+        572
+      ],
+      "answer": "Berdasarkan konteks yang diberikan, dokumen menyebutkan adanya hal audit utama (Key Audit Matters) dalam Laporan Auditor Independen BCA 2023, namun **rincian spesifik mengenai hal-hal audit utama tersebut tidak tersedia secara lengkap dalam konteks yang diberikan**.\n\nYang dapat dikonfirmasi dari kon"
+    },
+    {
+      "question": "Siapa yang menandatangani surat pernyataan direksi tentang tanggung jawab atas laporan keuangan konsolidasian 2023?",
+      "abstained": true,
+      "cited_pages": [
+        570
+      ],
+      "answer": "Berdasarkan konteks yang diberikan, dokumen menyebutkan bahwa surat pernyataan direksi tentang tanggung jawab atas laporan keuangan konsolidasian PT Bank Central Asia Tbk dan entitas anak pada tanggal dan untuk tahun yang berakhir 31 Desember 2023 ditandatangani di Jakarta pada tanggal 24 Januari 20"
+    }
+  ],
+  "per_question": [
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        260
+      ],
+      "question": "Berapa total aset BCA (konsolidasi) per akhir 2023?",
+      "latency_ms": 4058.6,
+      "input_tokens": 1869,
+      "output_tokens": 101,
+      "answer": "Berdasarkan konteks yang diberikan, total aset BCA secara konsolidasi per akhir tahun 2023 adalah **Rp1.408,1 triliun**. Angka ini menunjukkan pertumbuhan sebesar 7,1% secara tahunan [Sumber: BBCA, 2023, TINJAUAN EKONOMI, hal. 260]."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        18
+      ],
+      "question": "Berapa total kredit BCA pada 2023 menurut ikhtisar keuangan?",
+      "latency_ms": 2319.9,
+      "input_tokens": 1836,
+      "output_tokens": 88,
+      "answer": "Berdasarkan Ikhtisar Data Keuangan, **total kredit BCA pada tahun 2023 adalah 810.392 miliar Rupiah** (atau 810,392 triliun Rupiah).\n\n[Sumber: BBCA, 2023, Ikhtisar Data Keuangan, hal. 18]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        19,
+        39,
+        118,
+        260,
+        267
+      ],
+      "question": "Berapa dana pihak ketiga BCA tahun 2023?",
+      "latency_ms": 5432.2,
+      "input_tokens": 1796,
+      "output_tokens": 303,
+      "answer": "Berdasarkan konteks yang tersedia, dana pihak ketiga BCA pada tahun 2023 adalah **1.101,7 triliun Rupiah**.\n\n[Sumber: BBCA, 2023, Perbankan Transaksi, hal. 118]\n\nDana pihak ketiga ini tumbuh sebesar **3,8% YoY** dibandingkan tahun sebelumnya yang tercatat sebesar 1.039,7 triliun Rupiah.\n\n[Sumber: BBCA, 2023, TINJAUAN EKONOMI, hal. 260]\n[Sumber: BBCA, 2023, Anggota Dewan Komisaris, hal. 39]\n[Sumber: BBCA, 2023, Perbankan Transaksi, hal. 118]\n\nSebagai informasi tambahan, komposisi CASA (Current Account and Saving Account) menyumbang 80,3% dari total dana pihak ketiga pada tahun 2023.\n\n[Sumber: BBCA, 2023, LIABILITAS, hal. 267]\n[Sumber: BBCA, 2023, Permodalan, hal. 19]"
+    },
+    {
+      "answerable": true,
+      "correct": false,
+      "abstained": false,
+      "citation_ok": false,
+      "citation_basis": null,
+      "cited_pages": [
+        138,
+        224
+      ],
+      "question": "Berapa nilai CASA BCA pada akhir 2023?",
+      "latency_ms": 4170.3,
+      "input_tokens": 1725,
+      "output_tokens": 259,
+      "answer": "Berdasarkan konteks yang diberikan, nilai CASA BCA pada akhir 2023 adalah **Rp36,7 triliun**.\n\n[Sumber: BBCA, 2023, PENDUKUNG BISNIS, hal. 138]\n\nInformasi tambahan terkait CASA BCA per Desember 2023:\n- CASA tumbuh 4,3% dibandingkan tahun sebelumnya [Sumber: BBCA, 2023, PENDUKUNG BISNIS, hal. 138]\n- CASA memberikan kontribusi sebesar 80,3% dari total dana pihak ketiga [Sumber: BBCA, 2023, PENDUKUNG BISNIS, hal. 138]\n- Komposisi sumber pendanaan (DPK) BCA selama Triwulan IV 2023 terutama dari CASA, yaitu sebesar 80,76% [Sumber: BBCA, 2023, INDIVIDUAL KONSOLIDASI, hal. 224]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        18,
+        170,
+        268
+      ],
+      "question": "Berapa total ekuitas BCA tahun 2023?",
+      "latency_ms": 5770.9,
+      "input_tokens": 1875,
+      "output_tokens": 274,
+      "answer": "Berdasarkan konteks yang diberikan, **total ekuitas BCA tahun 2023 adalah Rp242.538 miliar Rupiah atau Rp242,5 triliun** [Sumber: BBCA, 2023, Ikhtisar Data Keuangan, hal. 18].\n\nAngka ini juga dikonfirmasi dalam bagian lain dokumen yang menyatakan bahwa \"Ekuitas tercatat meningkat 9,7% menjadi Rp242,5 triliun pada tahun 2023\" [Sumber: BBCA, 2023, EKUITAS, hal. 268].\n\nPerlu dicatat bahwa dalam Laporan Publikasi tercatat angka yang sedikit berbeda yaitu Rp242.356.256 miliar Rupiah untuk Total Ekuitas [Sumber: BBCA, 2023, Laporan Publikasi, hal. 170]. Perbedaan kecil ini kemungkinan disebabkan oleh pembulatan dalam Ikhtisar Data Keuangan."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        18,
+        268,
+        272
+      ],
+      "question": "Berapa laba bersih BCA tahun 2023 yang dapat diatribusikan kepada pemilik entitas induk?",
+      "latency_ms": 4532.5,
+      "input_tokens": 2120,
+      "output_tokens": 218,
+      "answer": "Berdasarkan dokumen yang tersedia, laba bersih BCA tahun 2023 yang dapat diatribusikan kepada pemilik entitas induk adalah **48.639 miliar Rupiah** atau **48,639 triliun Rupiah**.\n\n[Sumber: BBCA, 2023, Ikhtisar Data Keuangan, hal. 18]\n[Sumber: BBCA, 2023, EKUITAS, hal. 268]\n[Sumber: BBCA, 2023, Pendapatan Operasional Lainnya, hal. 272]\n\nAngka ini mengalami peningkatan 19,4% dibandingkan tahun 2022 yang sebesar 40.736 miliar Rupiah. [Sumber: BBCA, 2023, EKUITAS, hal. 268]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        25,
+        269,
+        740
+      ],
+      "question": "Berapa pendapatan bunga bersih BCA pada 2023?",
+      "latency_ms": 8133.6,
+      "input_tokens": 1954,
+      "output_tokens": 419,
+      "answer": "Berdasarkan konteks yang diberikan, terdapat **dua angka berbeda** untuk pendapatan bunga bersih BCA pada tahun 2023:\n\n1. **Rp75,1 triliun** - disebutkan dalam narasi di bagian Ekuitas [Sumber: BBCA, 2023, EKUITAS, hal. 269]\n\n2. **Rp70.236.233 juta atau Rp70,2 triliun** - tercatat dalam laporan keuangan konsolidasian (laporan laba rugi), yang merupakan selisih antara pendapatan bunga sebesar Rp81.809.757 juta dikurangi beban bunga sebesar Rp11.573.524 juta [Sumber: BBCA, 2023, INFORMASI TAMBAHAN, hal. 740]\n\nPerbedaan ini kemungkinan karena angka Rp75,1 triliun merupakan pembulatan atau mencakup komponen tambahan, sementara angka Rp70,2 triliun adalah angka resmi dari laporan keuangan konsolidasian.\n\nKedua sumber juga menyebutkan bahwa pendapatan bunga bersih mengalami kenaikan sebesar **17"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        18,
+        578,
+        663,
+        740
+      ],
+      "question": "Berapa laba sebelum pajak penghasilan BCA tahun 2023?",
+      "latency_ms": 7438.6,
+      "input_tokens": 2097,
+      "output_tokens": 350,
+      "answer": "Berdasarkan dokumen laporan keuangan BCA tahun 2023, terdapat dua angka laba sebelum pajak penghasilan tergantung pada basis pelaporannya:\n\n**1. Laba Sebelum Pajak Penghasilan Konsolidasian:**\nRp 60.179.757 juta atau Rp 60,18 triliun [Sumber: BBCA, hal. 578; BBCA, hal. 663; BBCA, hal. 18]\n\n**2. Laba Sebelum Pajak Penghasilan Bank (Entitas Induk):**\nRp 58.881.310 juta atau Rp 58,88 triliun [Sumber: BBCA, hal. 740; BBCA, hal. 663]\n\nPerbedaan kedua angka tersebut disebabkan oleh eliminasi konsolidasi sebesar Rp 1.980.891 juta dan laba entitas anak sebelum pajak sebesar Rp 3.279.338 juta. [Sumber: BBCA, hal. 663]\n\n**Angka yang diutamakan adalah angka konsolidasian sebesar Rp 60,18 triliun**, karena merepresentasikan kinerja keseluruhan grup BCA termasuk entitas anak perusahaan."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        19,
+        270
+      ],
+      "question": "Berapa beban operasional BCA tahun 2023?",
+      "latency_ms": 5414.1,
+      "input_tokens": 1869,
+      "output_tokens": 341,
+      "answer": "Berdasarkan konteks yang diberikan, **beban operasional BCA tahun 2023 adalah sebesar Rp37,503 triliun** (atau Rp37.503 miliar). [Sumber: BBCA, 2023, Pendapatan Operasional Lainnya, hal. 270]\n\nBeban operasional ini naik 15,5% dibandingkan tahun 2022 yang sebesar Rp32.483 triliun. [Sumber: BBCA, 2023, Pendapatan Operasional Lainnya, hal. 270]\n\nKenaikan beban operasional tersebut berasal dari:\n- Beban karyawan yang naik 18,6%\n- Beban umum dan administrasi yang naik 13,7% menjadi Rp17.497 miliar\n- Beban lainnya yang naik 10,7%\n\n[Sumber: BBCA, 2023, Pendapatan Operasional Lainnya, hal. 270]\n\nSebagai informasi tambahan, rasio Beban Operasional terhadap Pendapatan Operasional (BOPO) BCA di tahun 2023 adalah 43,8%. [Sumber: BBCA, 2023, Permodalan, hal. 19]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        21,
+        682
+      ],
+      "question": "Berapa laba bersih per saham BCA tahun 2023?",
+      "latency_ms": 6286.8,
+      "input_tokens": 1892,
+      "output_tokens": 360,
+      "answer": "Berdasarkan dokumen laporan keuangan konsolidasian BCA, **laba bersih per saham dasar tahun 2023 adalah Rp 395** (nilai penuh). [Sumber: BBCA, 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 682]\n\nInformasi ini juga dikonfirmasi dalam tabel dividen tunai yang menyebutkan Laba Bersih per Saham (Rp) tahun 2023 sebesar 395. [Sumber: BBCA, 2023, Modal Dasar, hal. 21]\n\nPerlu dicatat bahwa pada tanggal 31 Desember 2023, tidak ada instrumen yang berpotensi menjadi saham biasa, sehingga laba bersih per saham dilusian sama dengan laba bersih per saham dasar. [Sumber: BBCA, 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 682]\n\nAngka laba bersih per saham ini meningkat dari tahun 2022 yang sebesar Rp 330, menunjukkan pertumbuhan sekitar 19,7% year-on-year. [Sumber: BBCA, 2023, CATATAN"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        144,
+        277
+      ],
+      "question": "Berapa rasio kecukupan modal (CAR) BCA tahun 2023?",
+      "latency_ms": 5235.1,
+      "input_tokens": 1897,
+      "output_tokens": 299,
+      "answer": "Berdasarkan dokumen laporan keuangan BCA tahun 2023, terdapat dua angka CAR yang berbeda tergantung basis perhitungannya:\n\n1. **CAR Konsolidasi: 29,4%** [Sumber: BBCA, 2023, Struktur Modal, hal. 144]\n\n2. **CAR Tidak Konsolidasi (Entitas Induk): 29,4%** [Sumber: BBCA, 2023, Struktur Modal, hal. 144]\n\nUntuk tahun 2023, kedua angka CAR tersebut sama yaitu **29,4%**, meskipun pada tahun-tahun sebelumnya terdapat perbedaan antara CAR konsolidasi dan tidak konsolidasi [Sumber: BBCA, 2023, Struktur Modal, hal. 144].\n\nSebagai catatan, CAR 29,4% ini merupakan rasio yang sangat memadai dan jauh di atas ketentuan minimum yang berlaku [Sumber: BBCA, 2023, PEMANTAUAN DAN PENANGANAN KREDIT BERMASALAH, hal. 277]."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        19,
+        137,
+        260,
+        265,
+        646
+      ],
+      "question": "Berapa NPL bruto BCA pada 2023?",
+      "latency_ms": 7326.5,
+      "input_tokens": 1994,
+      "output_tokens": 455,
+      "answer": "Berdasarkan dokumen laporan keuangan BCA tahun 2023, NPL bruto BCA pada tahun 2023 adalah **1,9%**.\n\nInformasi ini dikonfirmasi oleh beberapa sumber dalam laporan:\n\n1. **1,9%** tercantum dalam ikhtisar permodalan [Sumber: BBCA, 2023, Permodalan, hal. 19]\n\n2. **1,9%** disebutkan dalam tinjauan sektor perbankan [Sumber: BBCA, 2023, TINJAUAN EKONOMI, hal. 260]\n\n3. **1,9%** tercatat dalam tabel kinerja kredit [Sumber: BBCA, 2023, TINJAUAN EKONOMI, hal. 265]\n\n4. **1,86%** (angka lebih detail) disebutkan dalam Catatan atas Laporan Keuangan Konsolidasian, yang dihitung sesuai POJK [Sumber: BBCA, 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 646]\n\n5. **1,9%** juga dikonfirmasi dalam bagian Pendukung Bisnis [Sumber: BBCA, 2023, PENDUKUNG BISNIS, hal. 137]\n\nRasio NPL bruto 1,9% ini mengala"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        19,
+        265,
+        646
+      ],
+      "question": "Berapa NPL neto BCA tahun 2023?",
+      "latency_ms": 6835.3,
+      "input_tokens": 2056,
+      "output_tokens": 350,
+      "answer": "Berdasarkan dokumen laporan keuangan BCA tahun 2023, **NPL neto BCA tahun 2023 adalah 0,6%**.\n\nInformasi ini dikonfirmasi dari beberapa sumber dalam laporan:\n\n1. **0,58%** menurut perhitungan sesuai POJK yang tercatat dalam Catatan atas Laporan Keuangan Konsolidasian [Sumber: BBCA, 2023, hal. 646]\n\n2. **0,6%** menurut Ikhtisar Data Keuangan di bagian Permodalan [Sumber: BBCA, 2023, hal. 19]\n\n3. **0,6%** juga disebutkan dalam bagian Tinjauan Ekonomi [Sumber: BBCA, 2023, hal. 265]\n\nAngka resmi yang lebih presisi adalah **0,58%** sebagaimana dihitung sesuai dengan Peraturan Otoritas Jasa Keuangan (POJK) yang berlaku [Sumber: BBCA, 2023, hal. 646]. Perlu dicatat bahwa rasio ini relatif stabil dibandingkan tahun 2022 yang juga tercatat 0,6% atau 0,59% [Sumber: BBCA, 2023, hal. 19 dan hal. 646]."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        19
+      ],
+      "question": "Berapa loan at risk (LAR) BCA di akhir 2023?",
+      "latency_ms": 3556.2,
+      "input_tokens": 1865,
+      "output_tokens": 165,
+      "answer": "Berdasarkan konteks yang diberikan, **Loan at Risk (LAR) BCA di akhir tahun 2023 adalah 6,9%** dari total kredit [Sumber: BBCA 2023, Permodalan, hal. 19].\n\nAngka ini menunjukkan perbaikan signifikan dibandingkan tahun-tahun sebelumnya, dimana LAR pada tahun 2022 sebesar 10,0%, tahun 2021 sebesar 14,6%, dan tahun 2020 sebesar 18,8% [Sumber: BBCA 2023, Permodalan, hal. 19]."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        19,
+        26
+      ],
+      "question": "Berapa return on asset (ROA) BCA tahun 2023?",
+      "latency_ms": 4195.6,
+      "input_tokens": 1937,
+      "output_tokens": 212,
+      "answer": "Berdasarkan konteks yang diberikan, **Return on Asset (ROA) BCA tahun 2023 adalah 3,6%**.\n\n[Sumber: BBCA, 2023, Permodalan, hal. 19]\n\nAngka ini menunjukkan peningkatan dibandingkan tahun-tahun sebelumnya: 3,2% (2022), 2,8% (2021), 2,7% (2020), dan 3,2% (2019). [Sumber: BBCA, 2023, Permodalan, hal. 19]\n\nROA sebesar 3,6% ini melampaui target yang ditetapkan perusahaan yaitu dalam rentang 3% - 4%. [Sumber: BBCA, 2023, Laporan Direksi, hal. 26]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        19,
+        25,
+        37,
+        268
+      ],
+      "question": "Berapa ROE BCA pada tahun 2023?",
+      "latency_ms": 4433.6,
+      "input_tokens": 1785,
+      "output_tokens": 213,
+      "answer": "Berdasarkan konteks yang diberikan, **ROE (Return on Equity) BCA pada tahun 2023 adalah 23,5%**.\n\n[Sumber: BBCA, 2023, Permodalan, hal. 19]\n[Sumber: BBCA, 2023, EKUITAS, hal. 268]\n[Sumber: BBCA, 2023, Laporan Direksi, hal. 25]\n\nROE ini mengalami peningkatan dari tahun sebelumnya yang sebesar 21,7% di tahun 2022, atau meningkat sebesar 180 basis poin. [Sumber: BBCA, 2023, EKUITAS, hal. 268] [Sumber: BBCA, 2023, Laporan Tugas Pengawasan, hal. 37]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        19,
+        35,
+        283
+      ],
+      "question": "Berapa net interest margin BCA tahun 2023?",
+      "latency_ms": 4059.9,
+      "input_tokens": 1802,
+      "output_tokens": 233,
+      "answer": "Berdasarkan konteks yang diberikan, Net Interest Margin (NIM) BCA tahun 2023 adalah **5,5%**.\n\n[Sumber: BBCA, 2023, Permodalan, hal. 19]\n\nInformasi ini juga dikonfirmasi dalam target NIM yang ditetapkan BCA untuk tahun 2023 sebesar 5,5%-5,6% [Sumber: BBCA, 2023, INVESTASI BARANG MODAL YANG INFORMASI MATERIAL MENGENAI, hal. 283] dan [Sumber: BBCA, 2023, Direktur Direktur Direktur, hal. 35].\n\nSebagai perbandingan, NIM BCA mengalami peningkatan dari tahun sebelumnya yaitu 5,3% di tahun 2022 [Sumber: BBCA, 2023, Permodalan, hal. 19]."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        19,
+        273
+      ],
+      "question": "Berapa rasio BOPO BCA tahun 2023?",
+      "latency_ms": 4178.0,
+      "input_tokens": 1838,
+      "output_tokens": 166,
+      "answer": "Berdasarkan dokumen laporan keuangan BCA tahun 2023, **rasio BOPO (Beban Operasional terhadap Pendapatan Operasional) BCA tahun 2023 adalah 43,8%**.\n\n[Sumber: BBCA, 2023, ARUS KAS, hal. 273]\n[Sumber: BBCA, 2023, Permodalan, hal. 19]\n\nPerlu dicatat bahwa angka ini merupakan rasio untuk entitas induk BCA saja, dan menunjukkan perbaikan dibandingkan tahun 2022 yang sebesar 46,5%."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        19
+      ],
+      "question": "Berapa loan to deposit ratio BCA pada 2023?",
+      "latency_ms": 2325.1,
+      "input_tokens": 1771,
+      "output_tokens": 122,
+      "answer": "Berdasarkan konteks yang diberikan, **Loan to Deposit Ratio (LDR) BCA pada tahun 2023 adalah 70,2%**.\n\n[Sumber: BBCA, 2023, Permodalan, hal. 19]\n\nAngka ini menunjukkan peningkatan dibandingkan tahun 2022 yang sebesar 65,2%. [Sumber: BBCA, 2023, Permodalan, hal. 19]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        19,
+        138,
+        224,
+        225
+      ],
+      "question": "Berapa liquidity coverage ratio BCA tahun 2023?",
+      "latency_ms": 5040.1,
+      "input_tokens": 1666,
+      "output_tokens": 296,
+      "answer": "Berdasarkan konteks yang diberikan, **Liquidity Coverage Ratio (LCR) BCA tahun 2023 adalah 357,8%** [Sumber: BBCA 2023, Permodalan, hal. 19].\n\nAngka ini juga dikonfirmasi dalam laporan lain yang menyebutkan bahwa pada Desember 2023, LCR BCA berada pada posisi 357,8% [Sumber: BBCA 2023, PENDUKUNG BISNIS, hal. 138].\n\nSebagai informasi tambahan, terdapat penurunan LCR selama periode Triwulan IV 2023:\n- **LCR Bank Only (Individu)** turun sebesar 21,44% dari 379,20% (Triwulan III 2023) [Sumber: BBCA 2023, INDIVIDUAL KONSOLIDASI, hal. 224]\n- **LCR Konsolidasi** turun sebesar 22,21% dari 383,25% (Triwulan III 2023) [Sumber: BBCA 2023, INDIVIDUAL KONSOLIDASI, hal. 225]"
+    },
+    {
+      "answerable": true,
+      "correct": false,
+      "abstained": true,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        26,
+        35,
+        276,
+        283
+      ],
+      "question": "Berapa target pertumbuhan kredit BCA untuk tahun 2024?",
+      "latency_ms": 5220.1,
+      "input_tokens": 1771,
+      "output_tokens": 225,
+      "answer": "Berdasarkan konteks yang diberikan, **informasi target pertumbuhan kredit BCA untuk tahun 2024 tidak tersedia dalam dokumen**.\n\nDokumen hanya menyebutkan bahwa BCA telah menetapkan target untuk tahun 2024 [Sumber: BBCA 2023, hal. 35] dan bahwa BCA menyampaikan beberapa target utama di 2024 [Sumber: BBCA 2023, hal. 283], namun angka spesifik untuk target pertumbuhan kredit tahun 2024 tidak tercantum dalam konteks yang diberikan.\n\nSebagai informasi tambahan, dokumen menunjukkan bahwa target pertumbuhan kredit untuk tahun 2023 adalah 10%-12% dengan realisasi 13,9% [Sumber: BBCA 2023, hal. 26 dan hal. 276]."
+    },
+    {
+      "answerable": true,
+      "correct": false,
+      "abstained": true,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        26,
+        35,
+        283
+      ],
+      "question": "Berapa target pertumbuhan CASA BCA di 2024?",
+      "latency_ms": 5868.2,
+      "input_tokens": 1795,
+      "output_tokens": 246,
+      "answer": "Berdasarkan konteks yang diberikan, **informasi mengenai target pertumbuhan CASA BCA di tahun 2024 tidak tersedia dalam dokumen**.\n\nDokumen hanya menyebutkan bahwa BCA menetapkan beberapa target utama di 2024 [Sumber: BBCA, 2023, INVESTASI BARANG MODAL YANG INFORMASI MA, hal. 283] dan target untuk tahun 2024 [Sumber: BBCA, 2023, Direktur Direktur Direktur, hal. 35], namun rincian angka target pertumbuhan CASA untuk tahun 2024 tidak disebutkan dalam konteks yang diberikan.\n\nYang tersedia hanya informasi target dan realisasi tahun 2023, yaitu target pertumbuhan CASA sebesar 7% - 9% dengan realisasi 4,3% [Sumber: BBCA, 2023, Laporan Direksi, hal. 26]."
+    },
+    {
+      "answerable": true,
+      "correct": false,
+      "abstained": true,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        35,
+        116,
+        276,
+        283
+      ],
+      "question": "Berapa target ROE BCA tahun 2024?",
+      "latency_ms": 6747.9,
+      "input_tokens": 1772,
+      "output_tokens": 309,
+      "answer": "Berdasarkan konteks yang diberikan, **informasi mengenai target ROE BCA tahun 2024 tidak tersedia dalam dokumen**.\n\nDokumen memuat beberapa referensi tentang target tahun 2024, termasuk:\n- Penyebutan bahwa BCA menetapkan target untuk tahun 2024 [Sumber: BBCA 2023, hal. 35]\n- Adanya bagian \"Prospek, Prioritas Strategis dan Proyeksi Tahun 2024\" [Sumber: BBCA 2023, hal. 116 dan 280]\n- Penyebutan \"beberapa target utama di 2024\" [Sumber: BBCA 2023, hal. 283]\n\nNamun, konteks yang tersedia tidak menampilkan angka spesifik untuk target ROE (Return on Equity) tahun 2024. Untuk perbandingan, dokumen menunjukkan pencapaian target tahun 2023 untuk pertumbuhan kredit (target 10%-12%, pencapaian 13,9%) [Sumber: BBCA 2023, hal. 276], tetapi tidak menyebutkan target ROE untuk tahun 2024."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        26
+      ],
+      "question": "Berapa jumlah pengguna mobile banking BCA pada 2023?",
+      "latency_ms": 3112.4,
+      "input_tokens": 1677,
+      "output_tokens": 143,
+      "answer": "Berdasarkan konteks yang tersedia, jumlah pengguna mobile banking BCA pada tahun 2023 adalah **30,3 juta pengguna**, mengalami peningkatan 13% year-on-year (YoY). [Sumber: BBCA 2023, Laporan Direksi, hal. 26]\n\nSelain itu, volume transaksi mobile banking juga meningkat signifikan sebesar 42% YoY. [Sumber: BBCA 2023, Laporan Direksi, hal. 26]"
+    },
+    {
+      "answerable": true,
+      "correct": false,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        10,
+        26,
+        121
+      ],
+      "question": "Berapa volume transaksi mobile banking BCA tahun 2023?",
+      "latency_ms": 6008.8,
+      "input_tokens": 1657,
+      "output_tokens": 293,
+      "answer": "Berdasarkan konteks yang tersedia, volume transaksi mobile banking BCA tahun 2023 adalah:\n\n**25,6 miliar transaksi** (untuk mobile & internet banking secara gabungan) dengan nilai transaksi sebesar **Rp24.825 triliun**. [Sumber: BBCA, 2023, Franchise Perbankan Transaksi, hal. 10]\n\nDokumen juga menyebutkan bahwa volume transaksi mobile banking meningkat **42% YoY** dibandingkan tahun sebelumnya. [Sumber: BBCA, 2023, Laporan Direksi, hal. 26]\n\nPerlu dicatat bahwa angka 25,6 miliar transaksi merupakan gabungan mobile banking dan internet banking, bukan mobile banking saja. Untuk total transaksi nasabah keseluruhan (semua kanal), tercatat lebih dari **30 miliar transaksi** dengan kontribusi mobile banking dan internet banking lebih dari 91% dari total transaksi tersebut. [Sumber: BBCA, 2023, T"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        124
+      ],
+      "question": "Berapa nilai kredit korporasi BCA pada akhir 2023?",
+      "latency_ms": 3480.7,
+      "input_tokens": 1853,
+      "output_tokens": 205,
+      "answer": "Berdasarkan konteks yang tersedia, **nilai kredit korporasi BCA pada akhir Desember 2023 adalah Rp368,7 triliun**. [Sumber: BBCA, 2023, TINJAUAN BISNIS, hal. 124]\n\nPortofolio kredit korporasi ini tumbuh 15% atau sebesar Rp48,2 triliun dibandingkan tahun sebelumnya. [Sumber: BBCA, 2023, TINJAUAN BISNIS, hal. 124]\n\nPertumbuhan ini didukung oleh membaiknya iklim investasi dan permintaan kredit yang lebih baik selama tahun 2023. [Sumber: BBCA, 2023, TINJAUAN BISNIS, hal. 124]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        30,
+        126
+      ],
+      "question": "Berapa pertumbuhan kredit UKM BCA tahun 2023?",
+      "latency_ms": 4753.6,
+      "input_tokens": 1840,
+      "output_tokens": 255,
+      "answer": "Berdasarkan konteks yang diberikan, pertumbuhan kredit UKM BCA tahun 2023 adalah **16,0% YoY** dengan nilai portofolio mencapai **Rp107,9 triliun** [Sumber: BBCA, 2023, hal. 30].\n\nPerlu dicatat bahwa dokumen juga menyebutkan pertumbuhan **Kredit Komersial & UKM** (gabungan) sebesar **11,2% YoY** dengan total portofolio **Rp234,7 triliun** [Sumber: BBCA, 2023, hal. 126]. Angka 11,2% ini merupakan pertumbuhan gabungan segmen Komersial dan UKM, bukan UKM saja.\n\nJadi, untuk pertumbuhan kredit UKM secara spesifik, angkanya adalah **16,0% YoY** [Sumber: BBCA, 2023, hal. 30]."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        31
+      ],
+      "question": "Berapa nilai portofolio keuangan berkelanjutan BCA tahun 2023?",
+      "latency_ms": 2310.5,
+      "input_tokens": 1684,
+      "output_tokens": 101,
+      "answer": "Berdasarkan konteks yang diberikan, nilai portofolio keuangan berkelanjutan BCA pada tahun 2023 adalah **Rp202,6 triliun**, yang tumbuh 10,6% dan mencapai 24,8% dari total portofolio. [Sumber: BBCA, 2023, Direktur Direktur Direktur, hal. 31]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        96,
+        595
+      ],
+      "question": "Berapa jumlah karyawan BCA pada akhir 2023?",
+      "latency_ms": 6513.2,
+      "input_tokens": 1973,
+      "output_tokens": 391,
+      "answer": "Berdasarkan dokumen laporan keuangan BCA tahun 2023, terdapat dua angka yang berbeda mengenai jumlah karyawan pada akhir tahun 2023:\n\n1. **26.917 karyawan** - Angka ini disebutkan dalam bagian Pengembangan Kompetensi, yang menyatakan \"Pada akhir tahun 2023, BCA memiliki 26.917 karyawan, naik 9,83% dibandingkan tahun sebelumnya yang sejumlah 24.508 karyawan.\" [Sumber: BBCA 2023, hal. 96]\n\n2. **27.273 karyawan tetap** - Angka ini disebutkan dalam Catatan Atas Laporan Keuangan Konsolidasian, yang menyatakan \"Pada tanggal 31 Desember 2023 dan 2022, Bank dan Entitas Anak mempunyai 27.273 dan 25.179 karyawan tetap.\" [Sumber: BBCA 2023, hal. 595]\n\nPerbedaan ini kemungkinan disebabkan karena angka pertama (26.917) merujuk pada karyawan BCA saja, sedangkan angka kedua (27.273) merupakan jumlah kons"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        30
+      ],
+      "question": "Kapan BCA meluncurkan fitur Paylater di aplikasi myBCA?",
+      "latency_ms": 3421.3,
+      "input_tokens": 1688,
+      "output_tokens": 112,
+      "answer": "Berdasarkan konteks yang diberikan, **BCA meluncurkan fitur Paylater di aplikasi myBCA pada bulan September 2023** [Sumber: BBCA 2023, hal. 30].\n\nPeluncuran fitur ini merupakan bagian dari strategi BCA di segmen konsumer dalam mengantisipasi dinamika risiko bisnis [Sumber: BBCA 2023, hal. 30]."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        311,
+        360,
+        523
+      ],
+      "question": "Siapa Presiden Direktur BCA pada 2023?",
+      "latency_ms": 4021.7,
+      "input_tokens": 1913,
+      "output_tokens": 178,
+      "answer": "Berdasarkan konteks yang diberikan, **Presiden Direktur BCA pada tahun 2023 adalah Jahja Setiaatmadja**.\n\n[Sumber: BBCA, 2023, DIREKSI, hal. 523]\n[Sumber: BBCA, 2023, Direksi, hal. 360]\n[Sumber: BBCA, 2023, Perihal Jenis Kebijakan Internal, hal. 311]\n\nInformasi ini konsisten disebutkan di beberapa bagian laporan keuangan BCA tahun 2023, termasuk dalam struktur kepengurusan Direksi dan bagian tata kelola perusahaan."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        335,
+        522
+      ],
+      "question": "Siapa Presiden Komisaris BCA?",
+      "latency_ms": 3287.7,
+      "input_tokens": 1953,
+      "output_tokens": 138,
+      "answer": "Berdasarkan dokumen laporan keuangan, **Presiden Komisaris PT Bank Central Asia Tbk adalah Djohan Emir Setijoso** [Sumber: BBCA, 2023, hal. 522].\n\nInformasi ini tercantum dalam struktur kepengurusan entitas utama BCA per 31 Desember 2023, dan sepanjang tahun 2023 tidak terjadi perubahan susunan Dewan Komisaris [Sumber: BBCA, 2023, hal. 335]."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        80,
+        340
+      ],
+      "question": "Siapa ketua Komite Audit BCA?",
+      "latency_ms": 5214.6,
+      "input_tokens": 1807,
+      "output_tokens": 197,
+      "answer": "Berdasarkan konteks yang diberikan, **Ketua Komite Audit BCA adalah Sumantri Slamet**. [Sumber: BBCA 2023, hal. 340] [Sumber: BBCA 2023, hal. 80]\n\nBeliau menjabat sebagai Ketua Komite Audit BCA sejak tanggal 22 April 2021 sesuai dengan Surat Keputusan Direksi No.073/SK/DIR/2021. [Sumber: BBCA 2023, hal. 80]\n\nSumantri Slamet memiliki status sebagai Komisaris Independen dengan masa jabatan 2021-2026. [Sumber: BBCA 2023, hal. 340]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        319
+      ],
+      "question": "Kantor akuntan publik mana yang mengaudit laporan keuangan BCA 2023?",
+      "latency_ms": 4021.4,
+      "input_tokens": 1905,
+      "output_tokens": 262,
+      "answer": "Berdasarkan konteks yang diberikan, Kantor Akuntan Publik yang mengaudit laporan keuangan BCA tahun 2023 adalah:\n\n**Kantor Akuntan Publik Tanudiredja, Wibisana, Rintis & Rekan (firma anggota jaringan global PwC)**\n\n[Sumber: BBCA, 2023, hal. 319]\n\nKAP ini ditunjuk melalui keputusan RUPST (Rapat Umum Pemegang Saham Tahunan) tahun 2023 untuk mengaudit/memeriksa buku dan catatan Perseroan untuk tahun buku yang berakhir pada tanggal 31 Desember 2023. [Sumber: BBCA, 2023, hal. 319]\n\nAkuntan Publik yang ditunjuk dari KAP tersebut adalah **Ibu Lucy Luciana Suhenda**. [Sumber: BBCA, 2023, hal. 319]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        310,
+        444,
+        532
+      ],
+      "question": "Kapan RUPS Tahunan BCA 2023 diselenggarakan?",
+      "latency_ms": 3228.5,
+      "input_tokens": 1871,
+      "output_tokens": 145,
+      "answer": "Berdasarkan konteks yang diberikan, RUPS Tahunan BCA untuk tahun buku 2022 diselenggarakan pada **tanggal 16 Maret 2023** [Sumber: BBCA 2023, hal. 532] [Sumber: BBCA 2023, hal. 444].\n\nPerlu dicatat bahwa ini adalah RUPS Tahunan Tahun Buku 2022 yang diselenggarakan pada tahun 2023 [Sumber: BBCA 2023, hal. 310]."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        341
+      ],
+      "question": "Berapa kali Komite Pemantau Risiko BCA rapat sepanjang 2023?",
+      "latency_ms": 2159.8,
+      "input_tokens": 1959,
+      "output_tokens": 72,
+      "answer": "Berdasarkan konteks yang diberikan, Komite Pemantau Risiko (KPR) BCA mengadakan rapat sebanyak **12 kali** sepanjang tahun 2023. [Sumber: BBCA 2023, hal. 341]"
+    },
+    {
+      "answerable": true,
+      "correct": false,
+      "abstained": true,
+      "citation_ok": false,
+      "citation_basis": null,
+      "cited_pages": [
+        112,
+        113,
+        114
+      ],
+      "question": "Berapa jumlah kantor cabang BCA pada akhir 2023?",
+      "latency_ms": 8474.4,
+      "input_tokens": 2120,
+      "output_tokens": 679,
+      "answer": "Berdasarkan konteks yang tersedia, terdapat beberapa informasi mengenai jumlah kantor cabang BCA pada akhir 2023:\n\n**Kantor Cabang per Kantor Wilayah:**\n\nDari halaman 112-114, terdapat rincian kantor cabang BCA yang dikelompokkan per Kantor Wilayah:\n\n1. **Kantor Wilayah I**: 11 Kantor Cabang Utama [Sumber: BBCA 2023, hal. 112]\n2. **Kantor Wilayah II**: 13 Kantor Cabang Utama dan 84 Kantor Cabang Pembantu [Sumber: BBCA 2023, hal. 112]\n3. **Kantor Wilayah III**: 14 Kantor Cabang Utama [Sumber: BBCA 2023, hal. 112]\n4. **Kantor Wilayah IV**: 13 Kantor Cabang Utama, 72 Kantor Cabang Pembantu, dan 17 Kantor Kas [Sumber: BBCA 2023, hal. 112]\n5. **Kantor Wilayah V**: 11 Kantor Cabang Utama [Sumber: BBCA 2023, hal. 113]\n6. **Kantor Wilayah VII**: 11 Kantor Cabang Utama [Sumber: BBCA 2023, hal. 113]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        19,
+        27,
+        254
+      ],
+      "question": "Berapa jumlah ATM BCA tahun 2023?",
+      "latency_ms": 4329.1,
+      "input_tokens": 1771,
+      "output_tokens": 235,
+      "answer": "Berdasarkan konteks yang diberikan, **jumlah ATM BCA pada tahun 2023 adalah 19.047 unit**.\n\n[Sumber: BBCA, 2023, Permodalan, hal. 19]\n\nInformasi ini juga dikonfirmasi dalam dokumen lain yang menyebutkan bahwa BCA mengoperasikan sebanyak 19.047 ATM pada akhir tahun 2023, dimana sebagian besar merupakan ATM setor-tarik (CRM) dan ATM multifungsi. [Sumber: BBCA, 2023, PENDUKUNG BISNIS, hal. 254]\n\nSebagai informasi tambahan, sekitar 75% dari ATM BCA tersebut merupakan CRM (Cash Recycling Machine atau mesin setor-tarik). [Sumber: BBCA, 2023, Laporan Direksi, hal. 27]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        19
+      ],
+      "question": "Berapa jumlah kartu kredit BCA (dalam ribuan) pada 2023?",
+      "latency_ms": 2342.4,
+      "input_tokens": 1813,
+      "output_tokens": 79,
+      "answer": "Berdasarkan konteks yang diberikan, **jumlah kartu kredit BCA pada tahun 2023 adalah 4.634 ribu kartu** (atau 4,634 juta kartu).\n\n[Sumber: BBCA, 2023, Permodalan, hal. 19]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        21,
+        317,
+        327,
+        682
+      ],
+      "question": "Berapa dividen tunai per saham yang dibagikan BCA dari laba tahun buku 2022?",
+      "latency_ms": 4283.2,
+      "input_tokens": 1938,
+      "output_tokens": 275,
+      "answer": "Berdasarkan konteks yang diberikan, dividen tunai per saham yang dibagikan BCA dari laba tahun buku 2022 adalah **Rp205,00 per saham**.\n\n[Sumber: BBCA, 2023, Komite Remunerasi, hal. 317]\n[Sumber: BBCA, 2023, Modal Dasar, hal. 21]\n\nDividen tunai tersebut dibayarkan pada tanggal 14 April 2023 kepada para pemegang saham yang memiliki hak untuk menerima dividen. [Sumber: BBCA, 2023, Komite Remunerasi, hal. 327]\n\nJumlah total dividen tunai yang dibayarkan adalah sebesar Rp20.956.758 juta (sudah termasuk dividen interim Tahun Buku 2022 yang telah dibayarkan sebelumnya). [Sumber: BBCA, 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 682]"
+    },
+    {
+      "answerable": true,
+      "correct": false,
+      "abstained": true,
+      "citation_ok": false,
+      "citation_basis": null,
+      "cited_pages": [],
+      "question": "Berapa saldo kas BCA per 31 Desember 2023 di laporan posisi keuangan konsolidasian?",
+      "latency_ms": 3072.1,
+      "input_tokens": 1953,
+      "output_tokens": 121,
+      "answer": "Informasi tidak tersedia dalam dokumen.\n\nKonteks yang diberikan hanya memuat halaman-halaman terkait Rekonsiliasi Permodalan (CC2) dan Komposisi Permodalan (CC1) dari Laporan Publikasi BBCA tahun 2023. Tidak ada informasi mengenai saldo kas pada Laporan Posisi Keuangan Konsolidasian per 31 Desember 2023 dalam konteks tersebut."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "page_text",
+      "cited_pages": [
+        701,
+        702
+      ],
+      "question": "Berapa giro pada Bank Indonesia di laporan posisi keuangan konsolidasian per 31 Desember 2023?",
+      "latency_ms": 5119.9,
+      "input_tokens": 2130,
+      "output_tokens": 197,
+      "answer": "Berdasarkan konteks yang diberikan, **Giro pada Bank Indonesia di laporan posisi keuangan konsolidasian per 31 Desember 2023 adalah sebesar Rp92.617.705 juta** (atau Rp92,62 triliun).\n\n[Sumber: BBCA, 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 701]\n\nInformasi ini juga dikonfirmasi dalam rincian segmentasi yang menunjukkan bahwa seluruh giro pada Bank Indonesia tersebut berasal dari segmen Bank Indonesia.\n\n[Sumber: BBCA, 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 702]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        576
+      ],
+      "question": "Berapa cadangan kerugian penurunan nilai kredit yang diberikan per 31 Desember 2023?",
+      "latency_ms": 4541.0,
+      "input_tokens": 2059,
+      "output_tokens": 274,
+      "answer": "Berdasarkan konteks yang diberikan, cadangan kerugian penurunan nilai kredit yang diberikan pada tanggal 31 Desember 2023 adalah **Rp33.308.875 juta** (atau Rp33,3 triliun).\n\n[Sumber: BBCA, 2023, LAPORAN AUDITOR INDEPENDEN, hal. 576]\n\nInformasi ini tercantum dalam laporan posisi keuangan konsolidasian, di mana disebutkan bahwa \"Kredit yang diberikan - setelah dikurangi cadangan kerugian penurunan nilai sebesar Rp33.308.875 pada tanggal 31 Desember 2023 (31 Desember 2022: Rp33.947.518)\".\n\nSebagai perbandingan, cadangan kerugian penurunan nilai pada 31 Desember 2022 adalah Rp33.947.518 juta.\n\n[Sumber: BBCA, 2023, LAPORAN AUDITOR INDEPENDEN, hal. 576]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        577
+      ],
+      "question": "Berapa jumlah liabilitas BCA di laporan posisi keuangan konsolidasian 2023?",
+      "latency_ms": 4400.4,
+      "input_tokens": 2056,
+      "output_tokens": 224,
+      "answer": "Berdasarkan Laporan Posisi Keuangan Konsolidasian BCA, **jumlah liabilitas pada tahun 2023 adalah Rp1.157.675.545 juta atau Rp1.157,68 triliun**. [Sumber: BBCA, 2023, LAPORAN POSISI KEUANGAN KONSOLIDASIAN, hal. 577]\n\nSebagai perbandingan, jumlah liabilitas pada tahun 2022 adalah Rp1.087.109.644 juta atau Rp1.087,11 triliun, yang menunjukkan adanya peningkatan liabilitas sebesar Rp70,57 triliun dari tahun sebelumnya. [Sumber: BBCA, 2023, LAPORAN POSISI KEUANGAN KONSOLIDASIAN, hal. 577]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        46,
+        577,
+        676
+      ],
+      "question": "Berapa lembar saham BCA yang ditempatkan dan disetor penuh?",
+      "latency_ms": 4471.4,
+      "input_tokens": 2205,
+      "output_tokens": 241,
+      "answer": "Berdasarkan konteks yang diberikan, **jumlah saham BCA yang ditempatkan dan disetor penuh adalah 123.275.050.000 lembar saham** dengan nilai nominal Rp 12,50 (nilai penuh) per lembar saham, sehingga total nilai modal disetor adalah Rp 1.540.938 juta atau Rp 1.540.938.125.000.\n\n[Sumber: BBCA, 2023, LAPORAN POSISI KEUANGAN KONSOLIDASIAN, hal. 577]\n[Sumber: BBCA, 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 676]\n[Sumber: BBCA, 2023, Informasi Umum Perusahaan, hal. 46]\n\nJumlah ini konsisten untuk tahun 2023 dan 2022, tidak mengalami perubahan."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        577,
+        586,
+        676,
+        739
+      ],
+      "question": "Berapa nilai nominal per lembar saham BCA?",
+      "latency_ms": 5120.7,
+      "input_tokens": 2219,
+      "output_tokens": 302,
+      "answer": "Berdasarkan konteks yang diberikan, nilai nominal per lembar saham BCA adalah **Rp 12,50 (nilai penuh)**.\n\n[Sumber: BBCA 2023, LAPORAN POSISI KEUANGAN KONSOLIDASIAN, hal. 577]\n[Sumber: BBCA 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 676]\n[Sumber: BBCA 2023, INFORMASI TAMBAHAN, hal. 739]\n\nPerlu dicatat bahwa sebelumnya Bank pernah melakukan pemecahan nilai nominal saham (stock split) dari Rp 500 (nilai penuh) per saham menjadi 2 (dua) saham dengan nilai nominal Rp 250 (nilai penuh) per lembar saham. [Sumber: BBCA 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 586]\n\nNamun, berdasarkan laporan keuangan tahun 2023 dan 2022, nilai nominal yang berlaku adalah Rp 12,50 (nilai penuh) per lembar saham."
+    },
+    {
+      "answerable": true,
+      "correct": false,
+      "abstained": true,
+      "citation_ok": false,
+      "citation_basis": null,
+      "cited_pages": [
+        6,
+        266,
+        620,
+        681
+      ],
+      "question": "Berapa pendapatan bunga BCA tahun 2023 menurut laporan laba rugi?",
+      "latency_ms": 6221.4,
+      "input_tokens": 2174,
+      "output_tokens": 288,
+      "answer": "Berdasarkan konteks yang diberikan, **informasi tidak tersedia dalam dokumen**.\n\nKonteks yang tersedia hanya memuat:\n1. Kebijakan akuntansi mengenai pengakuan pendapatan bunga menggunakan metode suku bunga efektif [Sumber: BBCA 2023, hal. 620, 601]\n2. Pendapatan bunga dari aset keuangan yang diukur pada nilai wajar melalui laba rugi sebesar 239.727 juta Rupiah untuk tahun 2023 [Sumber: BBCA 2023, hal. 681]\n3. Referensi ke halaman laporan laba rugi (hal. 266-267) dalam daftar isi [Sumber: BBCA 2023, hal. 6, 116]\n\nNamun, **angka total pendapatan bunga dari laporan laba rugi konsolidasian tahun 2023 tidak tersedia** dalam konteks yang diberikan. Untuk menjawab pertanyaan ini, diperlukan akses ke halaman 266-267 yang memuat laporan laba rugi lengkap."
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        578,
+        680,
+        740
+      ],
+      "question": "Berapa beban bunga BCA tahun 2023?",
+      "latency_ms": 7548.1,
+      "input_tokens": 2202,
+      "output_tokens": 476,
+      "answer": "Berdasarkan konteks yang diberikan, terdapat **dua angka berbeda** untuk beban bunga BCA tahun 2023:\n\n1. **11.573.524 juta Rupiah** atau **11,57 triliun Rupiah** - tercatat dalam Informasi Tambahan [Sumber: BBCA, 2023, INFORMASI TAMBAHAN, hal. 740]\n\n2. **11.954.918 juta Rupiah** atau **11,95 triliun Rupiah** - tercatat dalam Laporan Posisi Keuangan Konsolidasian [Sumber: BBCA, 2023, LAPORAN POSISI KEUANGAN KONSOLIDASIAN, hal. 578]\n\nPerlu dicatat bahwa angka kedua (11.954.918 juta Rupiah) merupakan **beban bunga saja** sebelum ditambah dengan beban syariah sebesar 314.034 juta Rupiah. Total beban bunga dan syariah gabungan adalah **12.268.952 juta Rupiah** atau **12,27 triliun Rupiah** [Sumber: BBCA, 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 680]\n\nKomponen beban bunga tahun 20"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        270,
+        680,
+        740
+      ],
+      "question": "Berapa pendapatan provisi dan komisi bersih BCA tahun 2023?",
+      "latency_ms": 7881.5,
+      "input_tokens": 2038,
+      "output_tokens": 435,
+      "answer": "Berdasarkan dokumen laporan keuangan BBCA tahun 2023, terdapat **perbedaan angka** pendapatan provisi dan komisi bersih untuk tahun 2023:\n\n1. **Rp16.652.716 juta** (atau Rp16,7 triliun) - tercatat di Catatan atas Laporan Keuangan Konsolidasian [Sumber: BBCA, 2023, hal. 680]\n\n2. **Rp16.562.019 juta** - tercatat di bagian Informasi Tambahan [Sumber: BBCA, 2023, hal. 740]\n\n3. **Rp16.653 miliar** (atau Rp16,7 triliun) - disebutkan di bagian Pendapatan Operasional Lainnya [Sumber: BBCA, 2023, hal. 270]\n\nAngka yang **paling detail dan komprehensif** adalah **Rp16.652.716 juta** dari Catatan atas Laporan Keuangan Konsolidasian, yang menunjukkan rincian lengkap dengan jumlah pendapatan provisi dan komisi sebesar Rp16.653.255 juta dikurangi beban provisi dan komisi sebesar Rp539 juta [Sumber: BBCA,"
+    },
+    {
+      "answerable": true,
+      "correct": false,
+      "abstained": false,
+      "citation_ok": false,
+      "citation_basis": null,
+      "cited_pages": [
+        689,
+        739
+      ],
+      "question": "Berapa liabilitas imbalan pasca-kerja BCA per akhir 2023?",
+      "latency_ms": 5577.8,
+      "input_tokens": 2166,
+      "output_tokens": 311,
+      "answer": "Berdasarkan dokumen, liabilitas imbalan pasca-kerja BCA per akhir 2023 adalah **Rp8.884.242 juta** (atau sekitar Rp8,88 triliun). [Sumber: BBCA, 2023, INFORMASI TAMBAHAN, hal. 739]\n\nRincian komponen liabilitas imbalan pasca-kerja Bank (bersih) per 31 Desember 2023:\n- Program pensiun imbalan pasti dan kompensasi jangka panjang lainnya: Rp8.727.398 juta\n- Imbalan kesehatan pasca-kerja: Rp156.844 juta\n\n[Sumber: BBCA, 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 689]\n\nAngka tersebut merupakan liabilitas bersih setelah dikurangi nilai wajar aset program sebesar Rp3.120.458 juta untuk program pensiun imbalan pasti. [Sumber: BBCA, 2023, CATATAN ATAS LAPORAN KEUANGAN KONSOLIDASIAN, hal. 689]"
+    },
+    {
+      "answerable": true,
+      "correct": true,
+      "abstained": false,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        571
+      ],
+      "question": "Apa opini auditor independen atas laporan keuangan konsolidasian BCA 2023?",
+      "latency_ms": 4669.0,
+      "input_tokens": 1668,
+      "output_tokens": 302,
+      "answer": "Berdasarkan laporan auditor independen, opini atas laporan keuangan konsolidasian PT Bank Central Asia Tbk tahun 2023 adalah **Wajar Tanpa Modifikasian (Unqualified Opinion)**.\n\nSecara spesifik, auditor menyatakan: \"Menurut opini kami, laporan keuangan konsolidasian terlampir menyajikan secara wajar, dalam semua hal yang material, posisi keuangan konsolidasian Grup tanggal 31 Desember 2023, serta kinerja keuangan konsolidasian dan arus kas konsolidasiannya untuk tahun yang berakhir pada tanggal tersebut, sesuai dengan Standar Akuntansi Keuangan di Indonesia.\" [Sumber: BBCA, hal. 571]\n\nOpini wajar tanpa modifikasian ini menunjukkan bahwa laporan keuangan konsolidasian BCA beserta entitas anaknya telah disajikan secara wajar dalam semua hal yang material dan sesuai dengan Standar Akuntansi K"
+    },
+    {
+      "answerable": true,
+      "correct": false,
+      "abstained": true,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        571,
+        572
+      ],
+      "question": "Apa saja hal audit utama dalam laporan auditor independen BCA 2023?",
+      "latency_ms": 7820.5,
+      "input_tokens": 1665,
+      "output_tokens": 422,
+      "answer": "Berdasarkan konteks yang diberikan, dokumen menyebutkan adanya hal audit utama (Key Audit Matters) dalam Laporan Auditor Independen BCA 2023, namun **rincian spesifik mengenai hal-hal audit utama tersebut tidak tersedia secara lengkap dalam konteks yang diberikan**.\n\nYang dapat dikonfirmasi dari konteks adalah:\n\n1. **Definisi Hal Audit Utama**: Hal audit utama adalah \"hal-hal yang, menurut pertimbangan profesional kami, merupakan hal yang paling signifikan dalam audit kami atas laporan keuangan konsolidasian periode kini\" [Sumber: BBCA 2023, Laporan Auditor Independen, hal. 571]\n\n2. **Salah satu Hal Audit Utama yang teridentifikasi**: \n   - **Pengoperasian dan pengendalian sistem TI pelaporan keuangan Grup**, yang menjadi perhatian mengingat \"jumlah sistem pelaporan keuangan utama dan perp"
+    },
+    {
+      "answerable": true,
+      "correct": false,
+      "abstained": true,
+      "citation_ok": true,
+      "citation_basis": "label",
+      "cited_pages": [
+        570
+      ],
+      "question": "Siapa yang menandatangani surat pernyataan direksi tentang tanggung jawab atas laporan keuangan konsolidasian 2023?",
+      "latency_ms": 5426.6,
+      "input_tokens": 1840,
+      "output_tokens": 249,
+      "answer": "Berdasarkan konteks yang diberikan, dokumen menyebutkan bahwa surat pernyataan direksi tentang tanggung jawab atas laporan keuangan konsolidasian PT Bank Central Asia Tbk dan entitas anak pada tanggal dan untuk tahun yang berakhir 31 Desember 2023 ditandatangani di Jakarta pada tanggal 24 Januari 2024 [Sumber: BBCA, 2023, hal. 570].\n\nNamun, **nama-nama spesifik anggota Direksi yang menandatangani surat pernyataan tersebut tidak disebutkan dalam konteks yang diberikan**. Konteks hanya menyebutkan bahwa ada seseorang dengan jabatan \"Direktur\" yang menyatakan tanggung jawab tersebut [Sumber: BBCA, 2023, hal. 570], tetapi identitas lengkap para penandatangan tidak tersedia dalam dokumen konteks ini."
+    },
+    {
+      "answerable": false,
+      "correct": true,
+      "abstained": true,
+      "citation_ok": null,
+      "question": "Berapa laba bersih Bank Mandiri tahun 2023?",
+      "latency_ms": 5216.1,
+      "input_tokens": 1853,
+      "output_tokens": 207,
+      "answer": "Informasi tidak tersedia dalam dokumen.\n\nKonteks yang diberikan berasal dari laporan keuangan **PT Bank Central Asia Tbk (BBCA)** tahun 2023, bukan Bank Mandiri. Dokumen hanya menyebutkan Bank Mandiri dalam konteks yang tidak relevan dengan pertanyaan laba bersih, yaitu sebagai pihak dalam transaksi sebesar Rp50.000 juta pada tahun 2023 [Sumber: BBCA 2023, hal. 668] dan sebagai penyelenggara Mandiri Investment Forum [Sumber: BBCA 2023, hal. 411].\n\nUntuk informasi laba bersih Bank Mandiri tahun 2023, diperlukan dokumen laporan keuangan Bank Mandiri, bukan dokumen BBCA."
+    },
+    {
+      "answerable": false,
+      "correct": true,
+      "abstained": true,
+      "citation_ok": null,
+      "question": "Berapa harga saham BBCA hari ini?",
+      "latency_ms": 3443.3,
+      "input_tokens": 1927,
+      "output_tokens": 148,
+      "answer": "Informasi tidak tersedia dalam dokumen.\n\nDokumen yang diberikan hanya memuat data historis harga saham BBCA untuk periode 2019-2023, yaitu:\n- Tahun 2023: Harga tertinggi Rp 9.450 dan harga terendah Rp 8.000 [Sumber: BBCA 2023, Permodalan, hal. 20]\n\nTidak ada informasi tentang harga saham BBCA \"hari ini\" (real-time atau terkini) dalam konteks laporan keuangan yang diberikan."
+    },
+    {
+      "answerable": false,
+      "correct": true,
+      "abstained": true,
+      "citation_ok": null,
+      "question": "Berapa rasio NPL BCA pada tahun 2025?",
+      "latency_ms": 3244.0,
+      "input_tokens": 1851,
+      "output_tokens": 116,
+      "answer": "Informasi tidak tersedia dalam dokumen.\n\nDokumen yang diberikan hanya memuat data rasio NPL BCA sampai dengan tahun 2023. Berdasarkan konteks yang tersedia, rasio NPL bruto BCA pada tahun 2023 adalah 1,9% [Sumber: BBCA 2023, Permodalan, hal. 19], namun tidak terdapat informasi mengenai rasio NPL tahun 2025."
+    },
+    {
+      "answerable": false,
+      "correct": true,
+      "abstained": true,
+      "citation_ok": null,
+      "question": "Siapa Direktur Utama Bank Rakyat Indonesia?",
+      "latency_ms": 4675.3,
+      "input_tokens": 1847,
+      "output_tokens": 151,
+      "answer": "Informasi tidak tersedia dalam dokumen.\n\nDokumen yang diberikan adalah laporan keuangan PT Bank Central Asia Tbk (BBCA) tahun 2023, bukan laporan keuangan Bank Rakyat Indonesia. Meskipun terdapat sebutan mengenai Bank Rakyat Indonesia dalam konteks riwayat karir seseorang yang pernah bekerja di sana periode 1965-1998 [Sumber: BBCA, hal. 76], tidak ada informasi mengenai siapa yang menjabat sebagai Direktur Utama Bank Rakyat Indonesia."
+    },
+    {
+      "answerable": false,
+      "correct": true,
+      "abstained": true,
+      "citation_ok": null,
+      "question": "Berapa target laba bersih BCA untuk tahun 2027?",
+      "latency_ms": 4627.4,
+      "input_tokens": 1706,
+      "output_tokens": 188,
+      "answer": "Informasi tidak tersedia dalam dokumen.\n\nBerdasarkan konteks yang diberikan, tidak terdapat informasi mengenai target laba bersih BCA untuk tahun 2027. Dokumen hanya menyebutkan:\n\n1. Target untuk tahun 2023 yang mencakup pertumbuhan kredit 10%-12% [Sumber: BBCA 2023, hal. 276]\n2. Adanya penetapan target untuk tahun 2024, namun angka spesifik laba bersih tidak disebutkan dalam kutipan konteks [Sumber: BBCA 2023, hal. 35]\n\nTidak ada informasi tentang target laba bersih untuk tahun 2027 dalam konteks yang tersedia."
+    }
+  ],
+  "config": {
+    "model": "claude-sonnet-4-5",
+    "top_k": 10,
+    "retrieval_mode": "bm25"
+  }
+}

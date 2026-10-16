@@ -57,7 +57,7 @@ def log_query(
     record = {
         "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "request_id": request_id,
-        "status": status,                      # ok | rejected | rate_limited | error | no_results
+        "status": status,                      # ok | rejected | rate_limited | budget_exhausted | error | no_results
         "question_len": len(question),
         "question_hash": question_fingerprint(question),
         "latency_ms": round(latency_ms, 1),

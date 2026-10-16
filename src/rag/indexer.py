@@ -68,6 +68,7 @@ class DocumentChunk:
     year: int = 0
     char_count: int = 0
     extraction: str = "text"   # "text" or "ocr": OCR text can contain recognition errors
+    chunk_type: str = "text"   # "text" (sliding window) or "table_row" (one table row)
 
     def __post_init__(self) -> None:
         self.char_count = len(self.text)
@@ -89,6 +90,7 @@ class DocumentChunk:
             "year":          self.year,
             "char_count":    self.char_count,
             "extraction":    self.extraction,
+            "chunk_type":    self.chunk_type,
         }
 
 
@@ -195,6 +197,23 @@ UNITS = re.compile(r"\((?:dalam|in)\s+(?:jutaan|miliar|ribuan|triliun|millions?|
 YEAR = re.compile(r"(?<!\d)20\d\d(?!\d)")
 
 
+def page_columns(page_text: str) -> tuple[str, list[str]]:
+    """Unit and year columns of a table page, e.g. ("dalam miliar Rupiah", ["2023", "2022"])."""
+    head = page_text.split("\n")[:10]          # a table's unit sits in its header
+    units = UNITS.search("\n".join(head))
+    years: list[str] = []
+    for line in page_text.split("\n")[:15]:
+        found = list(dict.fromkeys(YEAR.findall(line)))
+        if len(found) >= 2 and len(line) < 120:   # a header row has two or more distinct years
+            years = found
+            break
+    unit = ""
+    if units:
+        unit = re.sub(r"(jutaan|miliar|ribuan|triliun)(?=Rupiah)", r"\1 ", units.group(0).strip("()"))
+        unit = re.sub(r"\s+", " ", unit)
+    return unit, years
+
+
 def page_context(page_text: str) -> str:
     """Short description of a table page: its unit and its year columns.
 
@@ -203,21 +222,71 @@ def page_context(page_text: str) -> str:
     Prefixing the unit and the column years lets both the retriever and the
     model read the numbers correctly. Returns "" for pages without a table.
     """
-    head = page_text.split("\n")[:10]          # a table's unit sits in its header
-    units = UNITS.search("\n".join(head))
-    years = ""
-    for line in page_text.split("\n")[:15]:
-        found = list(dict.fromkeys(YEAR.findall(line)))
-        if len(found) >= 2 and len(line) < 120:   # a header row has two or more distinct years
-            years = " ".join(found)
-            break
-    parts = []
-    if units:
-        unit = re.sub(r"(jutaan|miliar|ribuan|triliun)(?=Rupiah)", r"\1 ", units.group(0).strip("()"))
-        parts.append(re.sub(r"\s+", " ", unit))
+    unit, years = page_columns(page_text)
+    parts = [unit] if unit else []
     if years:
-        parts.append(f"kolom {years}")
+        parts.append("kolom " + " ".join(years))
     return " · ".join(parts)
+
+
+VALUE = re.compile(r"^\(-?\d[\d.,]*\)%?$|^-?\d[\d.,]*%?$|^-$|^n\.a\.?$", re.I)
+NUMBER = re.compile(r"\d[\d.,]*\d")
+NOTE_REF = re.compile(r"^\d{1,2}[a-z]{0,2}(,\d{1,2}[a-z]{0,2})+,?$")   # "40,43", "2b,2g,4"
+FOOTNOTE = re.compile(r"(?<=[A-Za-z)])\d{1,2}$")                         # "Total Kredit1", "(CAR)6"
+
+
+def _clean_label(tokens: list[str]) -> str:
+    while tokens and NOTE_REF.match(tokens[-1]):
+        tokens = tokens[:-1]
+    # A bare note number after a lower-case word ("laba rugi 43"), not "Tier 1".
+    if len(tokens) >= 2 and re.fullmatch(r"\d{1,2}", tokens[-1]) and tokens[-2][:1].islower():
+        tokens = tokens[:-1]
+    return FOOTNOTE.sub("", " ".join(tokens)).strip(" :-,")
+
+
+def table_rows(page_text: str, max_rows: int = 150) -> list[str]:
+    """Turn the rows of a year-column table into self-contained sentences.
+
+    "Total Aset 1.408.107 1.314.732 1.228.345" under the header
+    "2023 2022 2021" becomes "Total Aset: 2023 = 1.408.107; 2022 = 1.314.732;
+    2021 = 1.228.345 (dalam miliar Rupiah)". Rules, all chosen to skip a row
+    rather than guess:
+    - the number of trailing values must cover the year columns;
+    - a label that itself contains several numbers (two tables printed side
+      by side) is dropped;
+    - a label that continues the line above ("(31 Desember 2022: Rp 743)")
+      is replaced by the first line of that multi-line label, and values
+      printed on their own line take the line above as their label.
+    """
+    unit, years = page_columns(page_text)
+    if not years:
+        return []
+    rows: list[str] = []
+    pending: list[str] = []          # label lines seen since the last row
+    for line in page_text.split("\n"):
+        tokens = line.split()
+        n_vals = 0
+        while n_vals < len(tokens) and VALUE.match(tokens[len(tokens) - 1 - n_vals]):
+            n_vals += 1
+        if n_vals < len(years):
+            if line.strip() and len(set(YEAR.findall(line))) < 2:
+                pending.append(line.strip())
+            continue
+        values = tokens[len(tokens) - len(years):]
+        label = _clean_label(tokens[: len(tokens) - len(years)])
+        if pending and not label:                       # values on their own line: label is the line above
+            label = _clean_label(pending[-1].split())
+        elif pending and (label[0] in "(" or label[0].islower() or label.lower().startswith("catatan")):
+            label = _clean_label(pending[0 if len(pending) <= 3 else -1].split())   # wrapped label
+        pending = []
+        if (not label or YEAR.fullmatch(values[0])
+                or len(NUMBER.findall(label)) >= 2 or len(label) > 140):
+            continue
+        cells = "; ".join(f"{y} = {v}" for y, v in zip(years, values))
+        rows.append(f"{label}: {cells}" + (f" ({unit})" if unit else ""))
+        if len(rows) >= max_rows:
+            break
+    return rows
 
 
 def contextual_text(chunk_text: str, section_title: str, page: int, context: str) -> str:
@@ -252,6 +321,7 @@ class RAGIndexer:
         chunk_size: int = DEFAULT_CHUNK_SIZE,
         chunk_overlap: int = DEFAULT_CHUNK_OVERLAP,
         extractor: Optional[PDFExtractor] = None,
+        index_table_rows: bool = True,
     ) -> None:
         if not HAS_CHROMA:
             raise ImportError("chromadb required. Run: pip install chromadb")
@@ -267,6 +337,7 @@ class RAGIndexer:
         self.embed_model_name = embed_model
         self.chunker = TextChunker(chunk_size, chunk_overlap)
         self.extractor = extractor or PDFExtractor()
+        self.index_table_rows = index_table_rows
 
         self._embed_model: Optional[SentenceTransformer] = None
         self._client: Optional[chromadb.PersistentClient] = None
@@ -382,6 +453,7 @@ class RAGIndexer:
                 "pages_ocr": stats.pages_ocr,
                 "pages_empty": stats.pages_empty,
                 "boilerplate_lines_removed": stats.boilerplate_lines_removed,
+                "table_row_chunks": sum(c.chunk_type == "table_row" for c in all_chunks),
             },
             embed_model=self.embed_model_name,
             chunk_size=self.chunker.chunk_size,
@@ -513,6 +585,31 @@ class RAGIndexer:
                 )
                 all_chunks.append(chunk)
                 global_index += 1
+
+        if getattr(self, "index_table_rows", True):
+            # One extra chunk per table row, so a question about a single figure
+            # can match a short text that holds exactly that label and value.
+            title_of = {}
+            for section in doc.sections:
+                for pg in range(section.start_page, getattr(section, "end_page", section.start_page) + 1):
+                    title_of.setdefault(pg, section.title)
+            for p in getattr(doc, "pages", []):
+                for row in table_rows(getattr(p, "text", "")):
+                    all_chunks.append(DocumentChunk(
+                        chunk_id="",
+                        document_id=document_id,
+                        text=contextual_text(row, title_of.get(p.page_number, ""), p.page_number, ""),
+                        page_number=p.page_number,
+                        section_title=title_of.get(p.page_number, ""),
+                        section_type="financial",
+                        chunk_index=global_index,
+                        source_file=source_file,
+                        company=company,
+                        year=year,
+                        extraction="ocr" if page_source.get(p.page_number) == "ocr" else "text",
+                        chunk_type="table_row",
+                    ))
+                    global_index += 1
 
         return all_chunks
 

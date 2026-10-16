@@ -175,3 +175,53 @@ def test_page_context_describes_tables_only():
         "Dalam jutaan Rupiah, kecuali dinyatakan lain · kolom 2023 2022"
     assert contextual_text("Total Aset 1.408.107", "Ikhtisar Data Keuangan", 18, "dalam miliar Rupiah") == \
         "[Ikhtisar Data Keuangan · hal. 18 · dalam miliar Rupiah]\nTotal Aset 1.408.107"
+
+
+# -- table rows -------------------------------------------------------------
+
+TABLE_PAGE = """Ikhtisar Data Keuangan
+(dalam miliar Rupiah) 2023 2022 2021
+Posisi Keuangan
+Total Aset 1.408.107 1.314.732 1.228.345
+Total Kredit1 810.392 711.262 636.987
+CAR Tier 1 28,3% 24,8% 24,7%
+Beban Operasional (37.503) (32.483) (30.308)
+Rasio Kredit terhadap Dana Pihak Ketiga (Loan to Deposit Ratio
+70,2% 65,2% 62,0%
+Giro pada bank-bank lain -setelah dikurangi cadangan
+(31 Desember 2022: Rp 743) 40,43 5.614.353 4.751.916 1.000
+Jumlah pendapatan bunga 87.397.774 72.241.191 Pemilik entitas induk 48.639.122 40.735.722 1
+Laba Bersih per Saham 395 330"""
+
+
+def test_table_rows_become_labelled_sentences():
+    from src.rag.indexer import table_rows
+    rows = table_rows(TABLE_PAGE)
+    assert rows[0] == "Total Aset: 2023 = 1.408.107; 2022 = 1.314.732; 2021 = 1.228.345 (dalam miliar Rupiah)"
+    assert rows[1].startswith("Total Kredit: 2023 = 810.392")          # footnote digit removed
+    assert rows[2].startswith("CAR Tier 1: 2023 = 28,3%")                # "Tier 1" kept
+    assert rows[3].startswith("Beban Operasional: 2023 = (37.503)")
+    assert rows[4].startswith("Rasio Kredit terhadap Dana Pihak Ketiga (Loan to Deposit Ratio: 2023 = 70,2%")
+    assert rows[5].startswith("Giro pada bank-bank lain -setelah dikurangi cadangan: 2023 = 5.614.353")
+    assert not any("Pemilik entitas induk" in r for r in rows)           # side-by-side tables skipped
+    assert not any(r.startswith("Laba Bersih per Saham") for r in rows)  # 2 values for 3 columns: skipped
+
+
+def test_pages_without_year_columns_give_no_rows():
+    from src.rag.indexer import table_rows
+    assert table_rows("Laba naik 19,4% menjadi Rp48,6 triliun pada 2023.\nNPL 1,9% 1,7% 2,2%") == []
+
+
+def test_table_row_chunks_are_added_with_their_type():
+    from src.rag.indexer import RAGIndexer, TextChunker
+    rag = RAGIndexer.__new__(RAGIndexer)
+    rag.chunker = TextChunker(256, 64)
+    section = SimpleNamespace(text=TABLE_PAGE, start_page=18, end_page=18,
+                              title="Ikhtisar Data Keuangan", section_type="financial")
+    doc = SimpleNamespace(sections=[section], pages=[SimpleNamespace(page_number=18, source="text", text=TABLE_PAGE)])
+    chunks = rag._build_chunks(doc, "d", "BBCA", 2023, "x.pdf")
+    rows = [c for c in chunks if c.chunk_type == "table_row"]
+    assert len(rows) == 6 and all(c.page_number == 18 for c in rows)
+    assert rows[0].text.startswith("[Ikhtisar Data Keuangan · hal. 18]\nTotal Aset: 2023 = 1.408.107")
+    assert rows[0].to_metadata()["chunk_type"] == "table_row"
+    assert len({c.chunk_id for c in chunks}) == len(chunks)

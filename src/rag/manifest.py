@@ -25,7 +25,9 @@ from loguru import logger
 #   2: fixed chunker, header/footer removal, OCR fallback, `extraction` metadata
 #   3: line-aware chunker without gaps (v2 skipped 1.8% of the text), chunks
 #      prefixed with section, page, unit and year columns
-INDEX_SCHEMA_VERSION = 3
+#   4: one extra chunk per table row ("Label: 2023 = x; 2022 = y (unit)"),
+#      `chunk_type` metadata
+INDEX_SCHEMA_VERSION = 4
 MANIFEST_NAME = "index_manifest.json"
 
 

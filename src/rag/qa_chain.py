@@ -14,6 +14,7 @@ Pipeline:
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from pathlib import Path
@@ -21,7 +22,7 @@ from typing import Optional
 
 from loguru import logger
 
-from src.api.client import get_client
+from src.api.client import get_client, sampling_kwargs
 from src.rag.retriever import RAGRetriever, RetrievedChunk
 from src.config import claude_model
 
@@ -37,8 +38,15 @@ Aturan penting:
 1. Jawab HANYA berdasarkan konteks yang diberikan — jangan mengarang fakta
 2. Setiap klaim WAJIB disertai citation dalam format [Sumber: nama, hal. X]
 3. Jika informasi tidak ada dalam konteks, jawab "Informasi tidak tersedia dalam dokumen"
-4. Gunakan angka yang tepat dari dokumen, bukan estimasi
-5. Jawab dalam Bahasa Indonesia yang formal dan ringkas"""
+4. Gunakan angka yang tepat dari dokumen, bukan estimasi, dan selalu sebutkan satuannya
+   (juta/miliar/triliun Rupiah atau persen) sesuai dokumen
+5. Baris tabel di konteks berbentuk "Label: 2023 = x; 2022 = y (satuan)": ambil kolom
+   tahun yang ditanyakan
+6. Utamakan angka konsolidasian (Ikhtisar Data Keuangan, laporan keuangan konsolidasian)
+   dibanding angka entitas induk saja, anak perusahaan, atau satu segmen, kecuali ditanya
+7. Jika konteks memuat beberapa angka berbeda untuk hal yang sama, sebutkan semuanya
+   beserta halamannya, jangan memilih salah satu diam-diam
+8. Jawab dalam Bahasa Indonesia yang formal dan ringkas"""
 
 QA_USER_TEMPLATE = """Konteks dari laporan keuangan IDX:
 {context}
@@ -134,8 +142,9 @@ class FinancialQAChain:
         self,
         persist_dir: str = "data/vectorstore",
         model: str | None = None,
-        top_k: int = 5,
+        top_k: int | None = None,
         max_context_chars: int = 6000,
+        retrieval_mode: str | None = None,
     ) -> None:
         """
         Args:
@@ -145,7 +154,10 @@ class FinancialQAChain:
             max_context_chars: Max characters of context sent to Claude.
         """
         self.model = model or claude_model()
-        self.top_k = top_k
+        self.top_k = top_k or int(os.getenv("RAG_TOP_K", "5"))
+        self.retrieval_mode = (retrieval_mode or os.getenv("RETRIEVAL_MODE", "hybrid")).lower()
+        if self.retrieval_mode not in {"hybrid", "bm25"}:
+            raise ValueError("retrieval_mode must be 'hybrid' or 'bm25'")
         self.max_context_chars = max_context_chars
         self.retriever = RAGRetriever(persist_dir=persist_dir)
 
@@ -182,13 +194,17 @@ class FinancialQAChain:
         logger.info("Processing question: '{}'", question[:80])
 
         # Step 1: Retrieve relevant chunks
-        chunks = self.retriever.retrieve(
-            query=question,
-            top_k=self.top_k,
-            company_filter=company_filter,
-            year_filter=year_filter,
-            section_type_filter=section_type_filter,
-        )
+        if getattr(self, "retrieval_mode", "hybrid") == "bm25":
+            where = self.retriever._build_filter(company_filter, year_filter, section_type_filter)
+            chunks = self.retriever._bm25_search_corpus(question, where, self.top_k)
+        else:
+            chunks = self.retriever.retrieve(
+                query=question,
+                top_k=self.top_k,
+                company_filter=company_filter,
+                year_filter=year_filter,
+                section_type_filter=section_type_filter,
+            )
 
         if not chunks:
             return self._no_results_response(question)
@@ -200,7 +216,7 @@ class FinancialQAChain:
         response = get_client().messages.create(
             model=self.model,
             max_tokens=1024,
-            temperature=0.1,
+            **sampling_kwargs(0.1),
             system=QA_SYSTEM_PROMPT,
             messages=[{
                 "role": "user",

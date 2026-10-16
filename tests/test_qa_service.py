@@ -123,3 +123,17 @@ def test_agent_history_is_cut_only_at_plain_user_turns():
     out = trim_agent_history(msgs, max_messages=10)
     assert len(out) <= 10 and out[0] == {"role": "user", "content": "q4"}
     assert trim_agent_history(msgs[:4], max_messages=10) == msgs[:4]
+
+
+def test_daily_budget_blocks_api_calls_once_spent(tmp_path):
+    from src.serving.guard import DailyBudget
+    chain = FakeChain()
+    svc = QAService(persist_dir=str(tmp_path), chain_factory=lambda: chain,
+                    limiter=RateLimiter(max_calls=100, global_max_calls=100),
+                    log_path=str(tmp_path / "q.jsonl"), api_key_present=lambda: True,
+                    budget=DailyBudget(limit_usd=0.01))
+    first = svc.ask("Berapa laba bersih BCA 2023?")       # 2000 in / 300 out ≈ $0.0105
+    second = svc.ask("Berapa total aset BCA 2023?")
+    assert "## Jawaban" in first and second.startswith("⏳ Kuota harian")
+    assert len(chain.calls) == 1
+    assert [r["status"] for r in _log(tmp_path)] == ["ok", "budget_exhausted"]
