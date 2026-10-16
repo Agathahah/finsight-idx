@@ -643,11 +643,11 @@ class SummaryEvaluator:
             reference_summary=reference[:800],
         )
 
-        from src.api.client import get_client
+        from src.api.client import get_client, sampling_kwargs
         response = get_client().messages.create(
             model=self.judge_model,
             max_tokens=512,
-            temperature=0.0,
+            **sampling_kwargs(0.0),
             system=JUDGE_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_message}],
         )

@@ -13,6 +13,7 @@ Provides:
 
 from __future__ import annotations
 
+import inspect
 import os
 from enum import Enum
 from typing import Optional
@@ -32,6 +33,26 @@ from src.config import claude_model
 
 # Load .env at module import time
 load_dotenv()
+
+
+def _create_accepts(name: str) -> bool:
+    try:
+        from anthropic.resources.messages import Messages
+        return name in inspect.signature(Messages.create).parameters
+    except Exception:  # unusual SDK layout: assume the old parameter set
+        return True
+
+
+# anthropic 1.13 removed `temperature` (and top_p/top_k) from messages.create;
+# passing it raises TypeError on every request. Older SDKs still accept it.
+SUPPORTS_TEMPERATURE = _create_accepts("temperature")
+
+
+def sampling_kwargs(temperature: Optional[float]) -> dict:
+    """Keyword arguments for sampling that the installed SDK accepts."""
+    if temperature is None or not SUPPORTS_TEMPERATURE:
+        return {}
+    return {"temperature": temperature}
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -223,7 +244,7 @@ def analyze_financial_text(
         response = get_client().messages.create(
             model=model,
             max_tokens=max_tokens,
-            temperature=temperature,
+            **sampling_kwargs(temperature),
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
         )
