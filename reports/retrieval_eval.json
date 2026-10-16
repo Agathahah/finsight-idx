@@ -1,0 +1,1479 @@
+{
+  "hybrid": {
+    "questions": 53,
+    "k": 5,
+    "recall_at_k": 0.3962,
+    "mrr": 0.1739,
+    "context_hit_at_k": 0.4528,
+    "misses": [
+      "Berapa total aset BCA (konsolidasi) per akhir 2023?",
+      "Berapa dana pihak ketiga BCA tahun 2023?",
+      "Berapa nilai CASA BCA pada akhir 2023?",
+      "Berapa pendapatan bunga bersih BCA pada 2023?",
+      "Berapa laba sebelum pajak penghasilan BCA tahun 2023?",
+      "Berapa beban operasional BCA tahun 2023?",
+      "Berapa laba bersih per saham BCA tahun 2023?",
+      "Berapa rasio kecukupan modal (CAR) BCA tahun 2023?",
+      "Berapa NPL bruto BCA pada 2023?",
+      "Berapa loan at risk (LAR) BCA di akhir 2023?",
+      "Berapa return on asset (ROA) BCA tahun 2023?",
+      "Berapa ROE BCA pada tahun 2023?",
+      "Berapa net interest margin BCA tahun 2023?",
+      "Berapa rasio BOPO BCA tahun 2023?",
+      "Berapa loan to deposit ratio BCA pada 2023?",
+      "Berapa liquidity coverage ratio BCA tahun 2023?",
+      "Berapa target pertumbuhan kredit BCA untuk tahun 2024?",
+      "Berapa target pertumbuhan CASA BCA di 2024?",
+      "Berapa nilai kredit korporasi BCA pada akhir 2023?",
+      "Berapa nilai portofolio keuangan berkelanjutan BCA tahun 2023?",
+      "Siapa Presiden Direktur BCA pada 2023?",
+      "Siapa Presiden Komisaris BCA?",
+      "Siapa ketua Komite Audit BCA?",
+      "Kantor akuntan publik mana yang mengaudit laporan keuangan BCA 2023?",
+      "Kapan RUPS Tahunan BCA 2023 diselenggarakan?",
+      "Berapa jumlah kantor cabang BCA pada akhir 2023?",
+      "Berapa jumlah ATM BCA tahun 2023?",
+      "Berapa giro pada Bank Indonesia per 31 Desember 2023?",
+      "Berapa nilai nominal per lembar saham BCA?",
+      "Berapa pendapatan bunga BCA tahun 2023 menurut laporan laba rugi?",
+      "Berapa liabilitas imbalan pasca-kerja BCA per akhir 2023?",
+      "Apa saja hal audit utama dalam laporan auditor independen BCA 2023?"
+    ],
+    "per_question": [
+      {
+        "question": "Berapa total aset BCA (konsolidasi) per akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          260,
+          236,
+          279,
+          21,
+          389
+        ]
+      },
+      {
+        "question": "Berapa total kredit BCA pada 2023 menurut ikhtisar keuangan?",
+        "recall_at_k": 1.0,
+        "rr": 0.3333333333333333,
+        "context_hit": false,
+        "pages": [
+          279,
+          131,
+          263,
+          18,
+          118
+        ]
+      },
+      {
+        "question": "Berapa dana pihak ketiga BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          138,
+          514,
+          132,
+          275,
+          39
+        ]
+      },
+      {
+        "question": "Berapa nilai CASA BCA pada akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          138,
+          26,
+          3,
+          138,
+          128
+        ]
+      },
+      {
+        "question": "Berapa total ekuitas BCA tahun 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.2,
+        "context_hit": false,
+        "pages": [
+          260,
+          21,
+          269,
+          273,
+          268
+        ]
+      },
+      {
+        "question": "Berapa laba bersih BCA tahun 2023 yang dapat diatribusikan kepada pemilik entitas induk?",
+        "recall_at_k": 1.0,
+        "rr": 0.25,
+        "context_hit": true,
+        "pages": [
+          538,
+          272,
+          144,
+          18,
+          131
+        ]
+      },
+      {
+        "question": "Berapa pendapatan bunga bersih BCA pada 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          269,
+          6,
+          278,
+          269,
+          21
+        ]
+      },
+      {
+        "question": "Berapa laba sebelum pajak penghasilan BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          271,
+          624,
+          278,
+          663,
+          144
+        ]
+      },
+      {
+        "question": "Berapa beban operasional BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          270,
+          273,
+          271,
+          21,
+          51
+        ]
+      },
+      {
+        "question": "Berapa laba bersih per saham BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          37,
+          273,
+          682,
+          388,
+          682
+        ]
+      },
+      {
+        "question": "Berapa rasio kecukupan modal (CAR) BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          144,
+          278,
+          277,
+          278,
+          138
+        ]
+      },
+      {
+        "question": "Berapa NPL bruto BCA pada 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          260,
+          279,
+          21,
+          273,
+          265
+        ]
+      },
+      {
+        "question": "Berapa NPL neto BCA tahun 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.2,
+        "context_hit": true,
+        "pages": [
+          260,
+          279,
+          278,
+          273,
+          19
+        ]
+      },
+      {
+        "question": "Berapa loan at risk (LAR) BCA di akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          264,
+          138,
+          124,
+          611,
+          645
+        ]
+      },
+      {
+        "question": "Berapa return on asset (ROA) BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          132,
+          283,
+          26,
+          389,
+          276
+        ]
+      },
+      {
+        "question": "Berapa ROE BCA pada tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          119,
+          273,
+          268,
+          21,
+          37
+        ]
+      },
+      {
+        "question": "Berapa net interest margin BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          273,
+          269,
+          279,
+          418,
+          278
+        ]
+      },
+      {
+        "question": "Berapa rasio BOPO BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          273,
+          261,
+          21,
+          260,
+          273
+        ]
+      },
+      {
+        "question": "Berapa loan to deposit ratio BCA pada 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          263,
+          645,
+          9,
+          279,
+          138
+        ]
+      },
+      {
+        "question": "Berapa liquidity coverage ratio BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          225,
+          224,
+          225,
+          224,
+          222
+        ]
+      },
+      {
+        "question": "Berapa target pertumbuhan kredit BCA untuk tahun 2024?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          282,
+          116,
+          26,
+          26,
+          276
+        ]
+      },
+      {
+        "question": "Berapa target pertumbuhan CASA BCA di 2024?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          26,
+          118,
+          26,
+          120,
+          260
+        ]
+      },
+      {
+        "question": "Berapa target ROE BCA tahun 2024?",
+        "recall_at_k": 1.0,
+        "rr": 0.25,
+        "context_hit": false,
+        "pages": [
+          283,
+          116,
+          21,
+          35,
+          282
+        ]
+      },
+      {
+        "question": "Berapa jumlah pengguna mobile banking BCA pada 2023?",
+        "recall_at_k": 1.0,
+        "rr": 1.0,
+        "context_hit": true,
+        "pages": [
+          26,
+          267,
+          111,
+          10,
+          10
+        ]
+      },
+      {
+        "question": "Berapa volume transaksi mobile banking BCA tahun 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.25,
+        "context_hit": false,
+        "pages": [
+          267,
+          10,
+          118,
+          26,
+          26
+        ]
+      },
+      {
+        "question": "Berapa nilai kredit korporasi BCA pada akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          124,
+          118,
+          124,
+          282,
+          279
+        ]
+      },
+      {
+        "question": "Berapa pertumbuhan kredit UKM BCA tahun 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.3333333333333333,
+        "context_hit": true,
+        "pages": [
+          119,
+          26,
+          30,
+          127,
+          263
+        ]
+      },
+      {
+        "question": "Berapa nilai portofolio keuangan berkelanjutan BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          272,
+          260,
+          273,
+          124,
+          278
+        ]
+      },
+      {
+        "question": "Berapa jumlah karyawan BCA pada akhir 2023?",
+        "recall_at_k": 1.0,
+        "rr": 1.0,
+        "context_hit": true,
+        "pages": [
+          96,
+          407,
+          6,
+          404,
+          97
+        ]
+      },
+      {
+        "question": "Kapan BCA meluncurkan fitur Paylater di aplikasi myBCA?",
+        "recall_at_k": 1.0,
+        "rr": 1.0,
+        "context_hit": true,
+        "pages": [
+          30,
+          121,
+          51,
+          121,
+          51
+        ]
+      },
+      {
+        "question": "Siapa Presiden Direktur BCA pada 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          350,
+          64,
+          568,
+          88,
+          71
+        ]
+      },
+      {
+        "question": "Siapa Presiden Komisaris BCA?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          331,
+          544,
+          64,
+          524,
+          90
+        ]
+      },
+      {
+        "question": "Siapa ketua Komite Audit BCA?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          391,
+          80,
+          391,
+          544,
+          360
+        ]
+      },
+      {
+        "question": "Kantor akuntan publik mana yang mengaudit laporan keuangan BCA 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          397,
+          319,
+          553,
+          319,
+          451
+        ]
+      },
+      {
+        "question": "Kapan RUPS Tahunan BCA 2023 diselenggarakan?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          310,
+          533,
+          444,
+          310,
+          532
+        ]
+      },
+      {
+        "question": "Berapa kali Komite Pemantau Risiko BCA rapat sepanjang 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.5,
+        "context_hit": false,
+        "pages": [
+          432,
+          42,
+          426,
+          397,
+          397
+        ]
+      },
+      {
+        "question": "Berapa jumlah kantor cabang BCA pada akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          274,
+          407,
+          112,
+          404,
+          113
+        ]
+      },
+      {
+        "question": "Berapa jumlah ATM BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          50,
+          27,
+          254,
+          254,
+          485
+        ]
+      },
+      {
+        "question": "Berapa jumlah kartu kredit BCA (dalam ribuan) pada 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.2,
+        "context_hit": false,
+        "pages": [
+          428,
+          263,
+          498,
+          279,
+          19
+        ]
+      },
+      {
+        "question": "Berapa dividen tunai per saham yang dibagikan BCA dari laba tahun buku 2022?",
+        "recall_at_k": 1.0,
+        "rr": 0.5,
+        "context_hit": false,
+        "pages": [
+          317,
+          278,
+          322,
+          317,
+          389
+        ]
+      },
+      {
+        "question": "Berapa saldo kas BCA per 31 Desember 2023 di laporan posisi keuangan konsolidasian?",
+        "recall_at_k": 1.0,
+        "rr": 1.0,
+        "context_hit": false,
+        "pages": [
+          168,
+          169,
+          170,
+          171,
+          172
+        ]
+      },
+      {
+        "question": "Berapa giro pada Bank Indonesia per 31 Desember 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          630,
+          262,
+          630,
+          738,
+          586
+        ]
+      },
+      {
+        "question": "Berapa cadangan kerugian penurunan nilai kredit yang diberikan per 31 Desember 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.5,
+        "context_hit": true,
+        "pages": [
+          645,
+          576,
+          576,
+          576,
+          576
+        ]
+      },
+      {
+        "question": "Berapa jumlah liabilitas BCA di laporan posisi keuangan konsolidasian 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.25,
+        "context_hit": false,
+        "pages": [
+          518,
+          626,
+          279,
+          577,
+          131
+        ]
+      },
+      {
+        "question": "Berapa lembar saham BCA yang ditempatkan dan disetor penuh?",
+        "recall_at_k": 1.0,
+        "rr": 0.5,
+        "context_hit": true,
+        "pages": [
+          389,
+          99,
+          400,
+          739,
+          577
+        ]
+      },
+      {
+        "question": "Berapa nilai nominal per lembar saham BCA?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          389,
+          99,
+          586,
+          388,
+          676
+        ]
+      },
+      {
+        "question": "Berapa pendapatan bunga BCA tahun 2023 menurut laporan laba rugi?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          273,
+          620,
+          272,
+          601,
+          273
+        ]
+      },
+      {
+        "question": "Berapa beban bunga BCA tahun 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.25,
+        "context_hit": false,
+        "pages": [
+          21,
+          620,
+          273,
+          680,
+          492
+        ]
+      },
+      {
+        "question": "Berapa pendapatan provisi dan komisi bersih BCA tahun 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.25,
+        "context_hit": true,
+        "pages": [
+          622,
+          518,
+          278,
+          680,
+          742
+        ]
+      },
+      {
+        "question": "Berapa liabilitas imbalan pasca-kerja BCA per akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          279,
+          690,
+          278,
+          689,
+          144
+        ]
+      },
+      {
+        "question": "Apa opini auditor independen atas laporan keuangan konsolidasian BCA 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.2,
+        "context_hit": false,
+        "pages": [
+          573,
+          279,
+          574,
+          452,
+          571
+        ]
+      },
+      {
+        "question": "Apa saja hal audit utama dalam laporan auditor independen BCA 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          450,
+          453,
+          452,
+          575,
+          452
+        ]
+      },
+      {
+        "question": "Siapa yang menandatangani surat pernyataan direksi tentang tanggung jawab atas laporan keuangan konsolidasian 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.25,
+        "context_hit": false,
+        "pages": [
+          595,
+          567,
+          595,
+          570,
+          594
+        ]
+      }
+    ]
+  },
+  "semantic_only": {
+    "questions": 53,
+    "k": 5,
+    "recall_at_k": 0.1509,
+    "mrr": 0.0745,
+    "context_hit_at_k": 0.2075,
+    "misses": [
+      "Berapa total aset BCA (konsolidasi) per akhir 2023?",
+      "Berapa total kredit BCA pada 2023 menurut ikhtisar keuangan?",
+      "Berapa dana pihak ketiga BCA tahun 2023?",
+      "Berapa nilai CASA BCA pada akhir 2023?",
+      "Berapa total ekuitas BCA tahun 2023?",
+      "Berapa laba bersih BCA tahun 2023 yang dapat diatribusikan kepada pemilik entitas induk?",
+      "Berapa pendapatan bunga bersih BCA pada 2023?",
+      "Berapa laba sebelum pajak penghasilan BCA tahun 2023?",
+      "Berapa beban operasional BCA tahun 2023?",
+      "Berapa laba bersih per saham BCA tahun 2023?",
+      "Berapa rasio kecukupan modal (CAR) BCA tahun 2023?",
+      "Berapa NPL bruto BCA pada 2023?",
+      "Berapa NPL neto BCA tahun 2023?",
+      "Berapa loan at risk (LAR) BCA di akhir 2023?",
+      "Berapa return on asset (ROA) BCA tahun 2023?",
+      "Berapa ROE BCA pada tahun 2023?",
+      "Berapa net interest margin BCA tahun 2023?",
+      "Berapa rasio BOPO BCA tahun 2023?",
+      "Berapa loan to deposit ratio BCA pada 2023?",
+      "Berapa liquidity coverage ratio BCA tahun 2023?",
+      "Berapa target pertumbuhan kredit BCA untuk tahun 2024?",
+      "Berapa target pertumbuhan CASA BCA di 2024?",
+      "Berapa target ROE BCA tahun 2024?",
+      "Berapa volume transaksi mobile banking BCA tahun 2023?",
+      "Berapa nilai kredit korporasi BCA pada akhir 2023?",
+      "Berapa nilai portofolio keuangan berkelanjutan BCA tahun 2023?",
+      "Siapa Presiden Direktur BCA pada 2023?",
+      "Siapa Presiden Komisaris BCA?",
+      "Siapa ketua Komite Audit BCA?",
+      "Kantor akuntan publik mana yang mengaudit laporan keuangan BCA 2023?",
+      "Kapan RUPS Tahunan BCA 2023 diselenggarakan?",
+      "Berapa kali Komite Pemantau Risiko BCA rapat sepanjang 2023?",
+      "Berapa jumlah kantor cabang BCA pada akhir 2023?",
+      "Berapa jumlah ATM BCA tahun 2023?",
+      "Berapa jumlah kartu kredit BCA (dalam ribuan) pada 2023?",
+      "Berapa giro pada Bank Indonesia per 31 Desember 2023?",
+      "Berapa jumlah liabilitas BCA di laporan posisi keuangan konsolidasian 2023?",
+      "Berapa nilai nominal per lembar saham BCA?",
+      "Berapa pendapatan bunga BCA tahun 2023 menurut laporan laba rugi?",
+      "Berapa beban bunga BCA tahun 2023?",
+      "Berapa pendapatan provisi dan komisi bersih BCA tahun 2023?",
+      "Berapa liabilitas imbalan pasca-kerja BCA per akhir 2023?",
+      "Apa opini auditor independen atas laporan keuangan konsolidasian BCA 2023?",
+      "Apa saja hal audit utama dalam laporan auditor independen BCA 2023?",
+      "Siapa yang menandatangani surat pernyataan direksi tentang tanggung jawab atas laporan keuangan konsolidasian 2023?"
+    ],
+    "per_question": [
+      {
+        "question": "Berapa total aset BCA (konsolidasi) per akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          260,
+          21,
+          389,
+          273,
+          518
+        ]
+      },
+      {
+        "question": "Berapa total kredit BCA pada 2023 menurut ikhtisar keuangan?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          279,
+          118,
+          645,
+          124,
+          131
+        ]
+      },
+      {
+        "question": "Berapa dana pihak ketiga BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          138,
+          278,
+          274,
+          144,
+          274
+        ]
+      },
+      {
+        "question": "Berapa nilai CASA BCA pada akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          261,
+          225,
+          224,
+          138,
+          26
+        ]
+      },
+      {
+        "question": "Berapa total ekuitas BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          21,
+          273,
+          279,
+          144,
+          275
+        ]
+      },
+      {
+        "question": "Berapa laba bersih BCA tahun 2023 yang dapat diatribusikan kepada pemilik entitas induk?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          538,
+          144,
+          131,
+          103,
+          538
+        ]
+      },
+      {
+        "question": "Berapa pendapatan bunga bersih BCA pada 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          269,
+          278,
+          21,
+          647,
+          273
+        ]
+      },
+      {
+        "question": "Berapa laba sebelum pajak penghasilan BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          271,
+          278,
+          144,
+          273,
+          278
+        ]
+      },
+      {
+        "question": "Berapa beban operasional BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          273,
+          21,
+          51,
+          144,
+          492
+        ]
+      },
+      {
+        "question": "Berapa laba bersih per saham BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          273,
+          388,
+          274,
+          37,
+          278
+        ]
+      },
+      {
+        "question": "Berapa rasio kecukupan modal (CAR) BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          18,
+          144,
+          278,
+          273,
+          278
+        ]
+      },
+      {
+        "question": "Berapa NPL bruto BCA pada 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          21,
+          273,
+          273,
+          275,
+          279
+        ]
+      },
+      {
+        "question": "Berapa NPL neto BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          273,
+          21,
+          279,
+          260,
+          518
+        ]
+      },
+      {
+        "question": "Berapa loan at risk (LAR) BCA di akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          264,
+          611,
+          645,
+          279,
+          278
+        ]
+      },
+      {
+        "question": "Berapa return on asset (ROA) BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          132,
+          389,
+          273,
+          272,
+          118
+        ]
+      },
+      {
+        "question": "Berapa ROE BCA pada tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          273,
+          21,
+          389,
+          273,
+          2
+        ]
+      },
+      {
+        "question": "Berapa net interest margin BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          273,
+          279,
+          278,
+          278,
+          118
+        ]
+      },
+      {
+        "question": "Berapa rasio BOPO BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          21,
+          261,
+          273,
+          279,
+          273
+        ]
+      },
+      {
+        "question": "Berapa loan to deposit ratio BCA pada 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          645,
+          279,
+          118,
+          131,
+          278
+        ]
+      },
+      {
+        "question": "Berapa liquidity coverage ratio BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          225,
+          225,
+          224,
+          224,
+          278
+        ]
+      },
+      {
+        "question": "Berapa target pertumbuhan kredit BCA untuk tahun 2024?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          282,
+          124,
+          279,
+          118,
+          116
+        ]
+      },
+      {
+        "question": "Berapa target pertumbuhan CASA BCA di 2024?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          261,
+          118,
+          26,
+          120,
+          260
+        ]
+      },
+      {
+        "question": "Berapa target ROE BCA tahun 2024?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          21,
+          282,
+          389,
+          273,
+          407
+        ]
+      },
+      {
+        "question": "Berapa jumlah pengguna mobile banking BCA pada 2023?",
+        "recall_at_k": 1.0,
+        "rr": 1.0,
+        "context_hit": true,
+        "pages": [
+          26,
+          267,
+          721,
+          10,
+          111
+        ]
+      },
+      {
+        "question": "Berapa volume transaksi mobile banking BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          267,
+          118,
+          721,
+          10,
+          279
+        ]
+      },
+      {
+        "question": "Berapa nilai kredit korporasi BCA pada akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          279,
+          124,
+          131,
+          118,
+          124
+        ]
+      },
+      {
+        "question": "Berapa pertumbuhan kredit UKM BCA tahun 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.5,
+        "context_hit": true,
+        "pages": [
+          119,
+          30,
+          54,
+          26,
+          282
+        ]
+      },
+      {
+        "question": "Berapa nilai portofolio keuangan berkelanjutan BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          273,
+          278,
+          274,
+          389,
+          118
+        ]
+      },
+      {
+        "question": "Berapa jumlah karyawan BCA pada akhir 2023?",
+        "recall_at_k": 1.0,
+        "rr": 1.0,
+        "context_hit": true,
+        "pages": [
+          96,
+          407,
+          404,
+          27,
+          350
+        ]
+      },
+      {
+        "question": "Kapan BCA meluncurkan fitur Paylater di aplikasi myBCA?",
+        "recall_at_k": 1.0,
+        "rr": 0.5,
+        "context_hit": true,
+        "pages": [
+          51,
+          30,
+          121,
+          50,
+          51
+        ]
+      },
+      {
+        "question": "Siapa Presiden Direktur BCA pada 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          64,
+          88,
+          71,
+          64,
+          93
+        ]
+      },
+      {
+        "question": "Siapa Presiden Komisaris BCA?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          64,
+          90,
+          76,
+          84,
+          331
+        ]
+      },
+      {
+        "question": "Siapa ketua Komite Audit BCA?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          64,
+          467,
+          391,
+          65,
+          80
+        ]
+      },
+      {
+        "question": "Kantor akuntan publik mana yang mengaudit laporan keuangan BCA 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          397,
+          553,
+          451,
+          391,
+          455
+        ]
+      },
+      {
+        "question": "Kapan RUPS Tahunan BCA 2023 diselenggarakan?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          310,
+          533,
+          533,
+          366,
+          374
+        ]
+      },
+      {
+        "question": "Berapa kali Komite Pemantau Risiko BCA rapat sepanjang 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          426,
+          397,
+          82,
+          374,
+          697
+        ]
+      },
+      {
+        "question": "Berapa jumlah kantor cabang BCA pada akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          407,
+          404,
+          274,
+          407,
+          407
+        ]
+      },
+      {
+        "question": "Berapa jumlah ATM BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": true,
+        "pages": [
+          50,
+          27,
+          254,
+          279,
+          27
+        ]
+      },
+      {
+        "question": "Berapa jumlah kartu kredit BCA (dalam ribuan) pada 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          279,
+          131,
+          118,
+          645,
+          124
+        ]
+      },
+      {
+        "question": "Berapa dividen tunai per saham yang dibagikan BCA dari laba tahun buku 2022?",
+        "recall_at_k": 1.0,
+        "rr": 0.25,
+        "context_hit": false,
+        "pages": [
+          389,
+          388,
+          389,
+          278,
+          389
+        ]
+      },
+      {
+        "question": "Berapa saldo kas BCA per 31 Desember 2023 di laporan posisi keuangan konsolidasian?",
+        "recall_at_k": 1.0,
+        "rr": 0.25,
+        "context_hit": false,
+        "pages": [
+          518,
+          279,
+          595,
+          168,
+          169
+        ]
+      },
+      {
+        "question": "Berapa giro pada Bank Indonesia per 31 Desember 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          630,
+          630,
+          586,
+          632,
+          666
+        ]
+      },
+      {
+        "question": "Berapa cadangan kerugian penurunan nilai kredit yang diberikan per 31 Desember 2023?",
+        "recall_at_k": 1.0,
+        "rr": 0.25,
+        "context_hit": true,
+        "pages": [
+          645,
+          738,
+          679,
+          576,
+          576
+        ]
+      },
+      {
+        "question": "Berapa jumlah liabilitas BCA di laporan posisi keuangan konsolidasian 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          518,
+          279,
+          131,
+          118,
+          273
+        ]
+      },
+      {
+        "question": "Berapa lembar saham BCA yang ditempatkan dan disetor penuh?",
+        "recall_at_k": 1.0,
+        "rr": 0.2,
+        "context_hit": true,
+        "pages": [
+          400,
+          389,
+          103,
+          134,
+          99
+        ]
+      },
+      {
+        "question": "Berapa nilai nominal per lembar saham BCA?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          389,
+          388,
+          99,
+          144,
+          400
+        ]
+      },
+      {
+        "question": "Berapa pendapatan bunga BCA tahun 2023 menurut laporan laba rugi?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          273,
+          272,
+          273,
+          278,
+          279
+        ]
+      },
+      {
+        "question": "Berapa beban bunga BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          21,
+          273,
+          492,
+          279,
+          273
+        ]
+      },
+      {
+        "question": "Berapa pendapatan provisi dan komisi bersih BCA tahun 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          518,
+          278,
+          622,
+          144,
+          273
+        ]
+      },
+      {
+        "question": "Berapa liabilitas imbalan pasca-kerja BCA per akhir 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          279,
+          278,
+          144,
+          518,
+          273
+        ]
+      },
+      {
+        "question": "Apa opini auditor independen atas laporan keuangan konsolidasian BCA 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          279,
+          452,
+          362,
+          416,
+          391
+        ]
+      },
+      {
+        "question": "Apa saja hal audit utama dalam laporan auditor independen BCA 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          452,
+          452,
+          450,
+          394,
+          451
+        ]
+      },
+      {
+        "question": "Siapa yang menandatangani surat pernyataan direksi tentang tanggung jawab atas laporan keuangan konsolidasian 2023?",
+        "recall_at_k": 0.0,
+        "rr": 0.0,
+        "context_hit": false,
+        "pages": [
+          595,
+          595,
+          594,
+          594,
+          571
+        ]
+      }
+    ]
+  }
+}

@@ -5,8 +5,8 @@ from src.rag.indexer import TextChunker
 
 
 def _text():
-    sentence = "Kredit bermasalah Kategori 2 dan nilainya relatif besar di atas Rp1 Miliar. "
-    return sentence * 40
+    return "".join(f"Kredit bermasalah Kategori {i} dan nilainya relatif besar di atas Rp{i} Miliar. "
+                   for i in range(40))
 
 
 def test_no_runs_of_near_duplicate_chunks():
@@ -15,9 +15,33 @@ def test_no_runs_of_near_duplicate_chunks():
     assert min(len(c) for c in chunks[:-1]) >= 128
 
 
-def test_each_step_advances_at_least_size_minus_overlap():
+def test_each_step_advances_at_least_half_window_minus_overlap():
     offsets = [o for _, o in TextChunker(256, 64).chunk_with_offsets(_text())]
-    assert all(b - a >= 192 for a, b in zip(offsets, offsets[1:]))
+    assert all(b - a >= 256 // 2 - 64 for a, b in zip(offsets, offsets[1:]))
+
+
+def _covered(text, chunker):
+    cov = [False] * len(text)
+    for piece, off in chunker.chunk_with_offsets(text):
+        i = text.find(piece[:20], off)
+        for k in range(i, i + len(piece)):
+            cov[k] = True
+    return [text[k] for k in range(len(text)) if not cov[k] and not text[k].isspace()]
+
+
+def test_no_text_is_skipped():
+    """v2 forced a 192-character step even when the cut came earlier, skipping text."""
+    prose = "".join(f"Kalimat {i} pendek. " if i % 3 else f"Kalimat {i} yang jauh lebih panjang dari biasanya. "
+                    for i in range(120))
+    table = "\n".join(f"Baris {i} 1.{i:03d}.107 1.314.{i:03d} 1.228.345" for i in range(60))
+    for text in (prose, table, prose + PAGE_BREAK + table):
+        assert _covered(text, TextChunker(256, 64)) == []
+
+
+def test_table_rows_are_not_split():
+    rows = [f"Pos keuangan {i} {i}.408.107 {i}.314.732 1.228.345 1.075.570" for i in range(40)]
+    for chunk in TextChunker(256, 64).chunk("\n".join(rows)):
+        assert all(line in rows for line in chunk.split("\n"))
 
 
 def test_offsets_map_to_pages():
@@ -49,7 +73,8 @@ def test_force_reindex_deletes_existing_chunks(tmp_path, monkeypatch):
     rag.chunker = TextChunker(256, 64)
     rag._get_collection = lambda: collection
     rag._store_chunks = lambda chunks: None
+    rag.persist_dir = tmp_path
     fake_doc = SimpleNamespace(sections=[], total_pages=1)
-    monkeypatch.setattr(idx, "PDFExtractor", lambda: SimpleNamespace(extract=lambda p: fake_doc))
+    rag.extractor = SimpleNamespace(extract=lambda p: fake_doc)
     rag.index_pdf(pdf, company="BBCA", year=2023, force_reindex=True)
     collection.delete.assert_called_once()

@@ -7,7 +7,7 @@
 [![Claude API](https://img.shields.io/badge/Claude_API-Anthropic-D97706)](https://www.anthropic.com/)
 [![FastMCP](https://img.shields.io/badge/FastMCP-MCP_Server-6366F1)](https://gofastmcp.com/)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-22C55E)](https://docs.trychroma.com/)
-[![Tests](https://img.shields.io/badge/unit_tests-151-22C55E)](tests/)
+[![Tests](https://img.shields.io/badge/unit_tests-206-22C55E)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Agathahah/finsight-idx/blob/main/notebooks/demo_finsight.ipynb)
 
@@ -96,9 +96,43 @@ FinSight IDX is an **end-to-end NLP intelligence platform** for Indonesian capit
 
 > **How much these numbers can carry:** they come from 10 summaries. The judge is a Claude model grading Claude output, which tends to be lenient toward its own style, and no human rating was collected to check it. Treat 4.40/5 as a smoke test, not as evidence of quality. Low ROUGE is expected for paraphrasing summaries, so ROUGE alone says little either way.
 
-### Retrieval evaluation (to be run)
+### RAG evaluation (hand-labelled golden set)
 
-`src/rag/eval_retrieval.py` compares hybrid and semantic-only retrieval with recall@k and MRR on a hand-labelled golden set. Write at least 50 questions with the page numbers you verified in the PDF (format: `eval/golden_questions.example.jsonl`), then run `python -m src.rag.eval_retrieval eval/golden_questions.jsonl --k 5`.
+Two harnesses, both run against the real index and a golden set whose pages and figures were checked in the PDF by hand (PDF page numbers, not the numbers printed in the footer):
+
+| Harness | Question it answers | Command |
+|---|---|---|
+| `src/rag/eval_retrieval.py` | Does the right page reach the model? recall@5 and MRR, hybrid vs. semantic-only | `python -m src.rag.eval_retrieval eval/golden_questions.jsonl --k 5` |
+| `src/rag/eval_answers.py` | Is the answer's figure right, is the cited page right, does it refuse when the report has no answer? | `python -m src.rag.eval_answers eval/golden_questions.jsonl --limit 20` |
+
+Golden set: 58 questions (53 answerable, 5 that must be refused) in six groups: financial highlights, ratios, management narrative, governance, financial statements and scanned pages. Questions were drafted with Claude from the PDF text; every figure and page was checked by the author against the PDF and the index (`eval/golden_questions.jsonl`).
+
+Retrieval, k = 5, 53 answerable questions, 95% Wilson intervals in brackets:
+
+| Index | Retriever | recall@5 (page) | MRR | context hit@5 |
+|---|---|---|---|---|
+| v2 (audit chunker) | Hybrid | 0.30 | 0.13 | – |
+| v2 | Semantic only | 0.15 | 0.06 | – |
+| **v3** (no gaps, contextual headers) | **Hybrid** | **0.40** [0.28, 0.53] | **0.17** | **0.45** [0.33, 0.59] |
+| v3 | Semantic only | 0.15 [0.08, 0.27] | 0.07 | 0.21 [0.12, 0.33] |
+
+*Page recall* counts a hit when a retrieved chunk is on a labelled page. *Context hit* counts a hit when the expected figure appears anywhere in the five chunks, whatever the page.
+
+What the numbers say:
+- Hybrid beats semantic-only on the same questions: 13 questions are found only by hybrid, none only by semantic (McNemar exact p < 0.001). BM25 matters for financial terms the multilingual MiniLM does not separate well.
+- Narrative and financial-statement questions do best (6 of 10 pages found). Single figures from the highlight tables do worst (3 of 10): the retriever prefers the management-discussion pages that talk *about* total assets or net interest income over the table row that holds the number.
+- Fixing the chunker (row 14 of the audit) moved page recall from 0.30 to 0.40. The next step targets the table problem directly (see "Next experiments").
+
+| Answer metric | Value |
+|---|---|
+| Answer accuracy | _pending: run after the table-row experiment_ |
+| Citation accuracy | |
+| Correct refusals (unanswerable questions) | |
+| Mean latency / cost per question | |
+
+Next experiments, each measured on the same golden set: (1) index each table row as its own chunk with its label, unit and year columns; (2) re-rank the top 20 with a multilingual cross-encoder; (3) a multilingual embedding model with a longer input limit than MiniLM's 128 tokens.
+
+Raw reports are saved in `reports/`.
 
 ## 🔎 Audit, October 2026
 
@@ -114,7 +148,36 @@ I inspected the stored vector index and the code. Findings and fixes:
 | 6 | **Evaluation overstated** (10 samples, self-grading judge). | Section above | Caveat added; retrieval evaluation harness added. |
 | 7 | **`force_reindex=True` crashed** with `NameError`: the existing-chunk lookup only ran when re-indexing was off. | `indexer.py` v1 | Lookup runs in both modes; test added. |
 | 8 | README said MIT license but the repository had no LICENSE file; author line said "M.Sc. Data Science". | — | LICENSE added; degree corrected to Master of Mathematics (Data Science). |
+| 9 | **Running headers and footers polluted the index.** | After the chunker fix, ~380 chunks contained the navigation bar and ~475 the page footer. | `PDFExtractor` removes lines that repeat at the top or bottom of ≥25% of pages (3 patterns, ~2,100 lines in this report); unit lines such as "(Dalam jutaan Rupiah …)" are kept. |
+| 10 | **Scanned pages were unsearchable.** | PDF pages 570–575 (directors' statement and the independent auditor's report) have no text layer. | OCR fallback (tesseract, `FINSIGHT_OCR`); OCR chunks are tagged and cited as `OCR`. Pages that stay empty are listed in the index manifest. |
+| 11 | **The deployed demo could not tell it was serving the broken index.** | The Space still held the v1 vector store. | `index_manifest.json` records schema version, embedding model, chunking and PDF hash; the app refuses an incompatible index (`FINSIGHT_STRICT_INDEX=1`). |
+| 12 | **All visitors of the Space shared one agent conversation.** | `app.py` v1 kept the history in a module-level list. | History lives in a per-session `gr.State` and is trimmed to `MAX_AGENT_MESSAGES`. |
+| 13 | **No guardrails on a paid API.** No input limits, no rate limit, raw exceptions shown to users, a new QA chain (embedding model + BM25 corpus) built for every question. | `app.py` v1 | `src/serving/`: input validation, per-visitor and global rate limits, one cached chain, generic errors with a request id, one JSON log line per request. |
+| 14 | **The audit's own chunker fix skipped text and split table rows.** Every step was forced to advance 192 characters even when the cut came earlier, so the text in between was never indexed; cuts also fell mid-number in tables. Found by the first golden-set run (page recall@5 0.30). | 1.8% of the report's characters were in no chunk; chunks such as "as Induk 48.639 …" had lost their row label. | Line-aware chunker with no gaps (test `test_no_text_is_skipped`), and each chunk prefixed with section, page, unit and year columns, e.g. `[Ikhtisar Data Keuangan · hal. 18 · dalam miliar Rupiah · kolom 2023 2022 …]`. Index schema v3. |
 
+
+
+## 🏭 Production setup
+
+| Concern | What is in place | Where |
+|---|---|---|
+| Ingestion quality | Header/footer removal, OCR fallback, page-accurate citations | `src/nlp/pdf_extractor.py`, `src/rag/indexer.py` |
+| Index versioning | Manifest checked at start-up; mismatched index refused | `src/rag/manifest.py` |
+| Evaluation | Retrieval (recall@k, MRR) and answer-level (accuracy, citation, refusal) on a golden set | `src/rag/eval_*.py`, `eval/` |
+| Guardrails | Question/ticker/year validation, 5 req/min per visitor, 60 req/min global, queue limit | `src/serving/guard.py`, `app.py` |
+| Observability | `logs/queries.jsonl`: status, latency, tokens, cost, cited pages (question text off by default) | `src/serving/telemetry.py` |
+| Reproducible deploy | Pinned runtime requirements, Docker image with the embedding model baked in, scripted Space upload | `requirements_spaces.txt`, `Dockerfile`, `scripts/build_space.py` |
+
+Operate it:
+
+```bash
+python -m src.serving.telemetry logs/queries.jsonl     # p50/p95 latency, error rate, cost
+python scripts/build_space.py                           # dry run: build/space + checks
+python scripts/build_space.py --push --set-config       # deploy to the Hugging Face Space
+docker build -t finsight-idx . && docker run --rm -p 7860:7860 --env-file .env finsight-idx
+```
+
+Known limits: one document is indexed (BBCA 2023), so company/year filters are not yet exercised; OCR text can contain recognition errors and is marked as such; the rate limiter is in-process memory, which is enough for one Space replica but not for several.
 
 ---
 
@@ -145,11 +208,13 @@ cp .env.example .env
 # Edit .env: tambahkan ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-### Re-index after the October 2026 chunker fix
+### Build the index
 
 ```bash
+# optional, for scanned pages: brew install tesseract tesseract-lang && pip install pytesseract
 # put the annual report PDF in data/raw/ first
 PYTHONPATH=. python -c "from src.rag.indexer import RAGIndexer; print(RAGIndexer('data/vectorstore').index_pdf('data/raw/bbca_laporan_tahunan_2023.pdf', company='BBCA', year=2023, force_reindex=True))"
+cat data/vectorstore/index_manifest.json      # schema version, OCR pages, empty pages
 ```
 
 ### Verify Setup
@@ -157,7 +222,7 @@ PYTHONPATH=. python -c "from src.rag.indexer import RAGIndexer; print(RAGIndexer
 ```bash
 python -c "import anthropic; print('✅ SDK:', anthropic.__version__)"
 python -c "import chromadb; print('✅ ChromaDB:', chromadb.__version__)"
-PYTHONPATH=. pytest tests/ -q  # 151 unit tests (API calls are mocked)
+PYTHONPATH=. pytest tests/ -q  # 206 unit tests (API calls are mocked)
 python scripts/check_model.py  # real API call: confirms CLAUDE_MODEL exists for your key
 ```
 
@@ -247,10 +312,21 @@ finsight-idx/
 │   ├── rag/
 │   │   ├── indexer.py      # ChromaDB indexing + chunking
 │   │   ├── retriever.py    # Hybrid BM25+semantic + RRF
-│   │   └── qa_chain.py     # RAG Q&A with citations
+│   │   ├── qa_chain.py     # RAG Q&A with citations
+│   │   ├── manifest.py     # index_manifest.json: version checks
+│   │   ├── eval_retrieval.py   # recall@k, MRR
+│   │   └── eval_answers.py     # answer accuracy, citation accuracy, refusals
+│   ├── serving/
+│   │   ├── guard.py        # input validation, rate limiting
+│   │   ├── qa_service.py   # request path used by app.py
+│   │   └── telemetry.py    # JSONL query log + summary
 │   └── mcp/
 │       └── server.py       # FastMCP (4 tools, 2 prompts, 1 resource)
-├── tests/                  # 151 unit tests (Claude API mocked)
+├── scripts/                # check_model, show_page, build_space
+├── eval/                   # golden sets (hand-labelled)
+├── app.py                  # Gradio demo (Hugging Face Space)
+├── Dockerfile
+├── tests/                  # 206 unit tests (Claude API mocked)
 ├── notebooks/
 │   └── demo_finsight.ipynb # Interactive demo (Colab-ready)
 ├── data/
@@ -272,14 +348,14 @@ finsight-idx/
 
 **Serving:** FastMCP (MCP Server)
 
-**Quality:** pytest (151 unit tests) · ruff · rouge-score · GitHub Actions
+**Quality:** pytest (206 unit tests) · ruff · rouge-score · GitHub Actions
 
 ---
 
 ## 🧪 Running Tests
 
 ```bash
-PYTHONPATH=. pytest tests/ -v        # All 151 tests
+PYTHONPATH=. pytest tests/ -v        # All 206 tests
 PYTHONPATH=. pytest tests/ --cov=src  # With coverage
 ```
 

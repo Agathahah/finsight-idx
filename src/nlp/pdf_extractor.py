@@ -12,6 +12,7 @@ Responsibilities:
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -32,6 +33,7 @@ class PageContent:
     text: str
     tables: list[list] = field(default_factory=list)
     char_count: int = 0
+    source: str = "text"  # "text" (PDF text layer), "ocr", or "empty"
 
     def __post_init__(self) -> None:
         self.char_count = len(self.text)
@@ -113,6 +115,105 @@ HEADING_REGEX = re.compile(
     r"^(?:[A-Z][A-Z\s\d]{3,60}|[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,6})$"
 )
 
+# Bump when extraction output changes in a way that requires re-indexing.
+EXTRACTOR_VERSION = 2
+
+# Repeated lines that carry meaning (units of the numbers in a table) are kept
+# even when they appear on many pages.
+KEEP_REPEATED = re.compile(r"(?i)jutaan|miliar|ribuan|triliun|rupiah|million|billion")
+PAGE_NUMBER_LINE = re.compile(r"^\s*\d{1,4}\s*$")
+
+
+def _line_key(line: str) -> str:
+    """Normalise a line so running headers match across pages.
+
+    Digits become '#', and all whitespace is removed because pdfplumber splits
+    ligatures inconsistently ("Profi l" vs "Profil", "Tahunan 2023PT").
+    """
+    return re.sub(r"\s+", "", re.sub(r"\d+", "#", line.lower()))
+
+
+def _edge_lines(text: str, edge: int) -> list[str]:
+    lines = [l for l in text.split("\n") if l.strip()]
+    return lines if len(lines) <= 2 * edge else lines[:edge] + lines[-edge:]
+
+
+def find_boilerplate(page_texts: list[str], min_ratio: float = 0.25,
+                     max_len: int = 160, edge: int = 3) -> set[str]:
+    """Return keys of lines that repeat at the top or bottom of many pages.
+
+    These are running headers, footers and navigation bars. They add no
+    information to a chunk but pull its embedding towards the same text on
+    hundreds of other pages. Only the first and last ``edge`` lines of a page
+    are considered, so a body line that differs only in its numbers (a table
+    row, a recurring sentence) is never counted.
+    """
+    n = len(page_texts)
+    if n < 10:
+        return set()
+    counts: dict[str, int] = {}
+    for text in page_texts:
+        for k in {_line_key(l) for l in _edge_lines(text, edge)}:
+            counts[k] = counts.get(k, 0) + 1
+    return {
+        k for k, c in counts.items()
+        if c / n >= min_ratio and len(k) <= max_len
+        and k.strip("#") and not KEEP_REPEATED.search(k)
+    }
+
+
+def strip_boilerplate(text: str, boilerplate: set[str], edge: int = 3) -> tuple[str, int]:
+    """Remove boilerplate lines near the page edges, plus the page-number line."""
+    lines = [l for l in text.split("\n") if l.strip()]
+    n = len(lines)
+    kept = [l for i, l in enumerate(lines)
+            if not ((i < edge or i >= n - edge) and _line_key(l) in boilerplate)]
+    # A bare number as the first or last line is the page number. Remove at
+    # most one at each end: the lines before it can be table values.
+    if kept and PAGE_NUMBER_LINE.match(kept[0]):
+        kept.pop(0)
+    if kept and PAGE_NUMBER_LINE.match(kept[-1]):
+        kept.pop()
+    return "\n".join(kept).strip(), n - len(kept)
+
+
+# ---------------------------------------------------------------------------
+# OCR (optional: needs the tesseract binary and `pip install pytesseract`)
+# ---------------------------------------------------------------------------
+
+def ocr_available() -> bool:
+    try:
+        import pytesseract
+        pytesseract.get_tesseract_version()
+        return True
+    except Exception:
+        return False
+
+
+def _ocr_languages(wanted: str) -> str:
+    """Use the requested tesseract languages that are installed; fall back to eng."""
+    import pytesseract
+    try:
+        installed = set(pytesseract.get_languages(config=""))
+    except Exception:
+        return "eng"
+    langs = [l for l in wanted.split("+") if l in installed]
+    return "+".join(langs) or "eng"
+
+
+def ocr_page_image(image, lang: str = "ind+eng") -> str:
+    """OCR a PIL image. Separate function so tests can replace it."""
+    import pytesseract
+    return pytesseract.image_to_string(image, lang=_ocr_languages(lang))
+
+
+def looks_like_prose(text: str, min_chars: int = 200, min_alpha: float = 0.6) -> bool:
+    """Reject OCR output from photos and decorative pages (short or mostly symbols)."""
+    stripped = re.sub(r"\s", "", text)
+    if len(stripped) < min_chars:
+        return False
+    return sum(c.isalpha() for c in stripped) / len(stripped) >= min_alpha
+
 
 # ---------------------------------------------------------------------------
 # Extractor Class
@@ -133,15 +234,38 @@ class PDFExtractor:
         self,
         min_section_chars: int = 200,
         max_pages_per_chunk: int = 5,
+        strip_repeated_lines: bool = True,
+        boilerplate_min_ratio: float = 0.25,
+        ocr: Optional[str] = None,
+        ocr_lang: Optional[str] = None,
+        ocr_min_chars: int = 50,
+        ocr_resolution: int = 300,
     ) -> None:
         """
         Args:
-            min_section_chars:    Minimum characters for a section to be kept.
-            max_pages_per_chunk:  Max pages grouped into one section if no
-                                  heading is detected.
+            min_section_chars:     Minimum characters for a section to be kept.
+            max_pages_per_chunk:   Max pages grouped into one section if no
+                                   heading is detected.
+            strip_repeated_lines:  Remove running headers/footers before sectioning.
+            boilerplate_min_ratio: Share of pages a line must appear on to count
+                                   as a running header/footer.
+            ocr:                   "auto" (OCR text-less pages if tesseract is
+                                   installed), "off", or "required" (fail if it
+                                   is not). Default: env FINSIGHT_OCR or "auto".
+            ocr_lang:              Tesseract languages. Default: env OCR_LANG or "ind+eng".
+            ocr_min_chars:         Pages with less text than this are OCR candidates.
+            ocr_resolution:        DPI used to render a page for OCR.
         """
         self.min_section_chars = min_section_chars
         self.max_pages_per_chunk = max_pages_per_chunk
+        self.strip_repeated_lines = strip_repeated_lines
+        self.boilerplate_min_ratio = boilerplate_min_ratio
+        self.ocr_mode = (ocr or os.getenv("FINSIGHT_OCR", "auto")).lower()
+        if self.ocr_mode not in {"auto", "off", "required"}:
+            raise ValueError("ocr must be 'auto', 'off' or 'required'")
+        self.ocr_lang = ocr_lang or os.getenv("OCR_LANG", "ind+eng")
+        self.ocr_min_chars = ocr_min_chars
+        self.ocr_resolution = ocr_resolution
 
     # ------------------------------------------------------------------
     # Public API
@@ -167,22 +291,36 @@ class PDFExtractor:
 
         logger.info("Extracting PDF | file={} ", path.name)
 
-        pages = self._extract_pages(path)
+        use_ocr = self._resolve_ocr()
+        pages = self._extract_pages(path, use_ocr=use_ocr)
         if not any(p.text.strip() for p in pages):
             raise ValueError(
                 f"No extractable text found in {path.name}. "
-                "File may be scanned/image-based — OCR required."
+                "File may be scanned/image-based: install tesseract and set FINSIGHT_OCR=required."
             )
+
+        removed_lines = 0
+        boilerplate: set[str] = set()
+        if self.strip_repeated_lines:
+            boilerplate = find_boilerplate([p.text for p in pages], self.boilerplate_min_ratio)
+            for p in pages:
+                p.text, n = strip_boilerplate(p.text, boilerplate)
+                p.char_count = len(p.text)
+                removed_lines += n
 
         raw_text = "\n\n".join(p.text for p in pages if p.text.strip())
         sections = self._detect_sections(pages)
 
+        pages_ocr = [p.page_number for p in pages if p.source == "ocr"]
+        pages_empty = [p.page_number for p in pages if not p.text.strip()]
         logger.success(
-            "Extraction complete | pages={} | sections={} | chars={}",
-            len(pages),
-            len(sections),
-            len(raw_text),
+            "Extraction complete | pages={} | sections={} | chars={} | ocr_pages={} | "
+            "empty_pages={} | boilerplate_lines_removed={}",
+            len(pages), len(sections), len(raw_text),
+            len(pages_ocr), len(pages_empty), removed_lines,
         )
+        if pages_empty:
+            logger.warning("Pages with no text (not searchable): {}", pages_empty)
 
         return ExtractedDocument(
             file_path=str(path),
@@ -190,15 +328,48 @@ class PDFExtractor:
             pages=pages,
             sections=sections,
             raw_text=raw_text,
-            metadata={"filename": path.name, "stem": path.stem},
+            metadata={
+                "filename": path.name,
+                "stem": path.stem,
+                "extractor_version": EXTRACTOR_VERSION,
+                "ocr_mode": self.ocr_mode,
+                "ocr_used": use_ocr,
+                "pages_ocr": pages_ocr,
+                "pages_empty": pages_empty,
+                "boilerplate_patterns": len(boilerplate),
+                "boilerplate_lines_removed": removed_lines,
+            },
         )
 
     # ------------------------------------------------------------------
     # Private Helpers
     # ------------------------------------------------------------------
 
-    def _extract_pages(self, path: Path) -> list[PageContent]:
-        """Extract text and tables from each page."""
+    def _resolve_ocr(self) -> bool:
+        if self.ocr_mode == "off":
+            return False
+        available = ocr_available()
+        if self.ocr_mode == "required" and not available:
+            raise RuntimeError(
+                "FINSIGHT_OCR=required but tesseract is not available. "
+                "macOS: brew install tesseract tesseract-lang && pip install pytesseract"
+            )
+        if not available:
+            logger.warning("OCR off: tesseract/pytesseract not installed; scanned pages stay unsearchable")
+        return available
+
+    def _ocr_page(self, page, page_number: int) -> Optional[str]:
+        """OCR one pdfplumber page; return cleaned text or None if it is not prose."""
+        try:
+            image = page.to_image(resolution=self.ocr_resolution).original
+            text = self._clean_text(ocr_page_image(image, self.ocr_lang))
+        except Exception as exc:
+            logger.warning("OCR failed on page {}: {}", page_number, exc)
+            return None
+        return text if looks_like_prose(text) else None
+
+    def _extract_pages(self, path: Path, use_ocr: bool = False) -> list[PageContent]:
+        """Extract text and tables from each page; OCR pages that have no text layer."""
         pages: list[PageContent] = []
 
         with pdfplumber.open(path) as pdf:
@@ -207,6 +378,13 @@ class PDFExtractor:
             for i, page in enumerate(pdf.pages, start=1):
                 raw = page.extract_text() or ""
                 text = self._clean_text(raw)
+                source = "text" if text.strip() else "empty"
+
+                if use_ocr and len(text) < self.ocr_min_chars and page.images:
+                    ocr_text = self._ocr_page(page, i)
+                    if ocr_text:
+                        text, source = ocr_text, "ocr"
+                        logger.info("OCR page {} | chars={}", i, len(text))
 
                 # Extract tables (financial statements)
                 tables: list[list] = []
@@ -221,6 +399,7 @@ class PDFExtractor:
                     page_number=i,
                     text=text,
                     tables=tables,
+                    source=source,
                 ))
 
                 if i % 20 == 0:

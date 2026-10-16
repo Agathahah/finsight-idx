@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Optional
@@ -34,7 +35,8 @@ try:
 except ImportError:
     HAS_ST = False
 
-from src.nlp.pdf_extractor import PAGE_BREAK, PDFExtractor
+from src.nlp.pdf_extractor import EXTRACTOR_VERSION, PAGE_BREAK, PDFExtractor
+from src.rag.manifest import file_sha256, load_manifest, record_document
 
 
 # ---------------------------------------------------------------------------
@@ -65,6 +67,7 @@ class DocumentChunk:
     company: str = ""
     year: int = 0
     char_count: int = 0
+    extraction: str = "text"   # "text" or "ocr": OCR text can contain recognition errors
 
     def __post_init__(self) -> None:
         self.char_count = len(self.text)
@@ -85,6 +88,7 @@ class DocumentChunk:
             "company":       self.company,
             "year":          self.year,
             "char_count":    self.char_count,
+            "extraction":    self.extraction,
         }
 
 
@@ -99,6 +103,9 @@ class IndexStats:
     collection_name: str
     embed_model: str
     indexed_at: str = ""
+    pages_ocr: list[int] = field(default_factory=list)
+    pages_empty: list[int] = field(default_factory=list)
+    boilerplate_lines_removed: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -128,38 +135,95 @@ class TextChunker:
         """
         Split text into overlapping chunks and return (chunk, start_offset).
 
-        A sentence boundary (". ") is used only if it falls in the second half
-        of the window; otherwise the window is cut at ``chunk_size``. Each step
-        advances by at least ``chunk_size - overlap`` characters.
+        The cut is placed, in order of preference, at the end of a line, at the
+        end of a sentence (". "), or at ``chunk_size``, and a line or sentence
+        boundary is only accepted in the second half of the window. The next
+        window starts ``overlap`` characters before the cut, moved forward to the
+        start of a line when one is close, so table rows are not split and every
+        character of ``text`` lands in at least one chunk.
 
-        Bug fixed in the October 2026 audit: the first version accepted a
-        boundary right after ``start`` and then advanced by one character, so
-        it produced runs of near-identical chunks ("am Kategori", "m Kategori",
-        "Kategori" ...). The stored index had 24,875 chunks but only 20,833
-        distinct texts, with an average length of 88 characters instead of 256.
+        History:
+        - v1 accepted a boundary right after ``start`` and advanced one
+          character, producing runs of near-identical chunks (24,875 chunks,
+          20,833 distinct, average 88 characters).
+        - v2 (October 2026 audit) forced every step to advance
+          ``chunk_size - overlap`` characters. When the cut fell in the first
+          part of that distance the text in between was skipped: 1.8% of the
+          BBCA 2023 report was never indexed. It also cut table rows mid-number.
         """
         if not text or not text.strip():
             return []
         if len(text) <= self.chunk_size:
             return [(text.strip().replace(PAGE_BREAK, "\n\n"), 0)]
 
-        step_min = max(1, self.chunk_size - self.overlap)
+        half = self.chunk_size // 2
         chunks: list[tuple[str, int]] = []
         start = 0
-        while start < len(text):
+        n = len(text)
+        while start < n:
             end = start + self.chunk_size
-            if end >= len(text):
+            if end >= n:
                 piece = text[start:].strip()
                 if piece:
                     chunks.append((piece.replace(PAGE_BREAK, "\n\n"), start))
                 break
-            boundary = text.rfind(". ", start + self.chunk_size // 2, end)
-            cut = boundary + 1 if boundary != -1 else end
+            line_end = max(text.rfind("\n", start + half, end), text.rfind(PAGE_BREAK, start + half, end))
+            if line_end != -1:
+                cut = line_end
+            else:
+                sentence = text.rfind(". ", start + half, end)
+                cut = sentence + 1 if sentence != -1 else end
             piece = text[start:cut].strip()
             if piece:
                 chunks.append((piece.replace(PAGE_BREAK, "\n\n"), start))
-            start = max(start + step_min, cut - self.overlap)
+            # Next window: start at the earliest line start within `overlap` of the
+            # cut (keeps rows whole); if the cut was itself a line end, the next
+            # line; otherwise plain character overlap.
+            lo = cut - self.overlap
+            breaks = [i for i in (text.find("\n", lo, cut), text.find(PAGE_BREAK, lo, cut)) if i != -1]
+            if breaks:
+                nxt = min(breaks) + 1
+            elif text[cut:cut + 1] in ("\n", PAGE_BREAK):
+                nxt = cut + 1
+            else:
+                nxt = lo
+            start = max(nxt, start + 1)
         return chunks
+
+
+UNITS = re.compile(r"\((?:dalam|in)\s+(?:jutaan|miliar|ribuan|triliun|millions?|billions?)[^)]{0,40}\)", re.I)
+YEAR = re.compile(r"(?<!\d)20\d\d(?!\d)")
+
+
+def page_context(page_text: str) -> str:
+    """Short description of a table page: its unit and its year columns.
+
+    A chunk cut from the middle of a table holds rows like
+    "Total Aset 1.408.107 1.314.732 ..." with no unit and no year header.
+    Prefixing the unit and the column years lets both the retriever and the
+    model read the numbers correctly. Returns "" for pages without a table.
+    """
+    head = page_text.split("\n")[:10]          # a table's unit sits in its header
+    units = UNITS.search("\n".join(head))
+    years = ""
+    for line in page_text.split("\n")[:15]:
+        found = list(dict.fromkeys(YEAR.findall(line)))
+        if len(found) >= 2 and len(line) < 120:   # a header row has two or more distinct years
+            years = " ".join(found)
+            break
+    parts = []
+    if units:
+        unit = re.sub(r"(jutaan|miliar|ribuan|triliun)(?=Rupiah)", r"\1 ", units.group(0).strip("()"))
+        parts.append(re.sub(r"\s+", " ", unit))
+    if years:
+        parts.append(f"kolom {years}")
+    return " · ".join(parts)
+
+
+def contextual_text(chunk_text: str, section_title: str, page: int, context: str) -> str:
+    """Text that is embedded, searched by BM25 and shown to the model."""
+    head = " · ".join(x for x in (section_title.strip()[:60], f"hal. {page}", context) if x)
+    return f"[{head}]\n{chunk_text}"
 
 
 # ---------------------------------------------------------------------------
@@ -187,6 +251,7 @@ class RAGIndexer:
         embed_model: str = DEFAULT_EMBED_MODEL,
         chunk_size: int = DEFAULT_CHUNK_SIZE,
         chunk_overlap: int = DEFAULT_CHUNK_OVERLAP,
+        extractor: Optional[PDFExtractor] = None,
     ) -> None:
         if not HAS_CHROMA:
             raise ImportError("chromadb required. Run: pip install chromadb")
@@ -201,6 +266,7 @@ class RAGIndexer:
         self.collection_name = collection_name
         self.embed_model_name = embed_model
         self.chunker = TextChunker(chunk_size, chunk_overlap)
+        self.extractor = extractor or PDFExtractor()
 
         self._embed_model: Optional[SentenceTransformer] = None
         self._client: Optional[chromadb.PersistentClient] = None
@@ -253,6 +319,11 @@ class RAGIndexer:
                     "Document already indexed | chunks={} | skipping",
                     count
                 )
+                entry = ((load_manifest(self.persist_dir) or {}).get("documents") or {}).get(document_id)
+                if entry is None:
+                    logger.warning("No manifest entry for this document: re-index with force_reindex=True")
+                elif path.exists() and entry.get("pdf_sha256") != file_sha256(path):
+                    logger.warning("PDF changed since it was indexed: re-index with force_reindex=True")
                 from datetime import datetime
                 return IndexStats(
                     document_id=document_id,
@@ -266,8 +337,9 @@ class RAGIndexer:
                 )
 
         # Extract PDF
-        extractor = PDFExtractor()
-        doc = extractor.extract(path)
+        doc = self.extractor.extract(path)
+
+        meta = getattr(doc, "metadata", None) or {}
 
         # Build chunks from sections
         all_chunks = self._build_chunks(doc, document_id, company, year, path.name)
@@ -290,11 +362,35 @@ class RAGIndexer:
             collection_name=self.collection_name,
             embed_model=self.embed_model_name,
             indexed_at=datetime.now().isoformat(),
+            pages_ocr=meta.get("pages_ocr", []),
+            pages_empty=meta.get("pages_empty", []),
+            boilerplate_lines_removed=meta.get("boilerplate_lines_removed", 0),
+        )
+
+        record_document(
+            self.persist_dir,
+            document_id,
+            {
+                "source_file": path.name,
+                "company": company,
+                "year": year,
+                "pdf_sha256": file_sha256(path),
+                "total_pages": doc.total_pages,
+                "total_chunks": len(all_chunks),
+                "extractor_version": meta.get("extractor_version", EXTRACTOR_VERSION),
+                "ocr_used": meta.get("ocr_used", False),
+                "pages_ocr": stats.pages_ocr,
+                "pages_empty": stats.pages_empty,
+                "boilerplate_lines_removed": stats.boilerplate_lines_removed,
+            },
+            embed_model=self.embed_model_name,
+            chunk_size=self.chunker.chunk_size,
+            chunk_overlap=self.chunker.overlap,
         )
 
         logger.success(
-            "Indexing complete | chunks={} | pages={}",
-            stats.total_chunks, stats.total_pages
+            "Indexing complete | chunks={} | pages={} | ocr_pages={} | empty_pages={}",
+            stats.total_chunks, stats.total_pages, len(stats.pages_ocr), len(stats.pages_empty),
         )
         return stats
 
@@ -394,6 +490,8 @@ class RAGIndexer:
         """Build DocumentChunk list from ExtractedDocument sections."""
         all_chunks: list[DocumentChunk] = []
         global_index = 0
+        page_source = {p.page_number: getattr(p, "source", "text") for p in getattr(doc, "pages", [])}
+        page_ctx = {p.page_number: page_context(getattr(p, "text", "")) for p in getattr(doc, "pages", [])}
 
         for section in doc.sections:
             for chunk_text, offset in self.chunker.chunk_with_offsets(section.text):
@@ -403,7 +501,7 @@ class RAGIndexer:
                 chunk = DocumentChunk(
                     chunk_id="",
                     document_id=document_id,
-                    text=chunk_text,
+                    text=contextual_text(chunk_text, section.title, page, page_ctx.get(page, "")),
                     page_number=page,
                     section_title=section.title,
                     section_type=section.section_type,
@@ -411,6 +509,7 @@ class RAGIndexer:
                     source_file=source_file,
                     company=company,
                     year=year,
+                    extraction="ocr" if page_source.get(page) == "ocr" else "text",
                 )
                 all_chunks.append(chunk)
                 global_index += 1
