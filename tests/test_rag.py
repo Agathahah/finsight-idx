@@ -400,3 +400,21 @@ class TestFinancialQAChain:
             assert path.exists()
             saved = json.loads(path.read_text())
             assert saved["question"] == "Test?"
+
+
+def test_bm25_mode_and_top_k_from_environment(monkeypatch):
+    from unittest.mock import MagicMock, patch
+    from src.rag.qa_chain import FinancialQAChain
+    monkeypatch.setenv("RAG_TOP_K", "9")
+    monkeypatch.setenv("RETRIEVAL_MODE", "bm25")
+    with patch("src.rag.qa_chain.RAGRetriever"):
+        qa = FinancialQAChain(persist_dir="x")
+    assert qa.top_k == 9 and qa.retrieval_mode == "bm25"
+    qa.retriever = MagicMock()
+    qa.retriever._bm25_search_corpus.return_value = []
+    qa.ask("Berapa total aset?", company_filter="BBCA", year_filter=2023)
+    qa.retriever._bm25_search_corpus.assert_called_once()
+    qa.retriever.retrieve.assert_not_called()
+    monkeypatch.setenv("RETRIEVAL_MODE", "dense")
+    with patch("src.rag.qa_chain.RAGRetriever"), pytest.raises(ValueError):
+        FinancialQAChain(persist_dir="x")

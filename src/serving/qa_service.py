@@ -2,7 +2,7 @@
 The request path of the demo, separated from Gradio so it can be tested.
 
 Every question goes through the same steps:
-    validate input -> rate limit -> (cached) QA chain -> format -> log
+    validate input -> rate limit -> daily budget -> (cached) QA chain -> format -> log
 and every outcome, including rejections and errors, leaves one line in the
 query log. Users see a short message and a request id; details stay in the log.
 """
@@ -17,10 +17,12 @@ from typing import Callable, Optional
 from loguru import logger
 
 from src.serving.guard import (
-    InvalidQuestion, RateLimiter, validate_question, validate_ticker, validate_year,
+    DailyBudget, InvalidQuestion, RateLimiter, validate_question, validate_ticker, validate_year,
 )
 from src.serving.telemetry import estimate_cost_usd, log_query, new_request_id
 
+BUDGET_MESSAGE = ("⏳ Kuota harian demo ini sudah habis. Coba lagi besok (reset pukul 07.00 WIB), "
+                  "atau jalankan aplikasinya sendiri dari repo GitHub.")
 DISCLAIMER = "*Bukan rekomendasi investasi. Periksa angka di halaman sumber sebelum dipakai.*"
 MAX_AGENT_MESSAGES = int(os.getenv("MAX_AGENT_MESSAGES", "20"))
 
@@ -68,6 +70,7 @@ class QAService:
         limiter: Optional[RateLimiter] = None,
         log_path: Optional[str] = None,
         api_key_present: Optional[Callable[[], bool]] = None,
+        budget: Optional[DailyBudget] = None,
     ) -> None:
         self.persist_dir = persist_dir
         self._chain_factory = chain_factory or self._default_chain
@@ -75,6 +78,10 @@ class QAService:
         self.log_path = log_path
         self._api_key_present = api_key_present or (
             lambda: os.getenv("ANTHROPIC_API_KEY", "").startswith("sk-ant-"))
+        if budget is None:
+            budget = DailyBudget()
+            budget.seed_from_log(log_path or os.getenv("QUERY_LOG_PATH", "logs/queries.jsonl"))
+        self.budget = budget
         self._chain = None
         self._chain_error: Optional[Exception] = None
         self._lock = threading.Lock()
@@ -140,6 +147,10 @@ class QAService:
             log("rate_limited")
             return f"⏳ Terlalu banyak pertanyaan. Coba lagi dalam {int(wait) + 1} detik."
 
+        if not self.budget.available():
+            log("budget_exhausted")
+            return BUDGET_MESSAGE
+
         if not self._api_key_present():
             log("error", error_type="missing_api_key")
             return "⚠️ Layanan belum dikonfigurasi (API key tidak ditemukan)."
@@ -154,6 +165,7 @@ class QAService:
             return f"❌ Terjadi kesalahan saat memproses pertanyaan. Coba lagi nanti. (id `{rid}`)"
 
         status = "ok" if resp.retrieved_chunks else "no_results"
+        self.budget.add(estimate_cost_usd(resp.input_tokens, resp.output_tokens))
         log(status, input_tokens=resp.input_tokens, output_tokens=resp.output_tokens,
             pages=sorted({s.page_number for s in resp.sources}), retrieved_chunks=resp.retrieved_chunks)
         return format_answer(resp, rid)

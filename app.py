@@ -53,8 +53,8 @@ except ImportError:
 
 # ── Production request path (validation, rate limit, logging) ───────────────
 from src.serving.guard import InvalidQuestion, validate_question
-from src.serving.qa_service import QAService, client_key_from_request, trim_agent_history
-from src.serving.telemetry import log_query, new_request_id
+from src.serving.qa_service import BUDGET_MESSAGE, QAService, client_key_from_request, trim_agent_history
+from src.serving.telemetry import estimate_cost_usd, log_query, new_request_id
 
 PERSIST_DIR = os.getenv("VECTORSTORE_DIR", str(ROOT / "data" / "vectorstore"))
 qa_service = QAService(persist_dir=PERSIST_DIR)
@@ -157,6 +157,8 @@ def chat_with_agent(message, history, agent_history, request: gr.Request = None)
     allowed, wait = qa_service.limiter.allow(client_key_from_request(request))
     if not allowed:
         return reply(f"⏳ Terlalu banyak pesan. Coba lagi dalam {int(wait) + 1} detik.", "rate_limited")
+    if not qa_service.budget.available():
+        return reply(BUDGET_MESSAGE, "budget_exhausted")
     agent = get_agent()
     if not agent:
         return reply("⚠️ Agent belum dikonfigurasi (API key tidak ditemukan).", "error",
@@ -170,8 +172,9 @@ def chat_with_agent(message, history, agent_history, request: gr.Request = None)
     answer = response.answer
     if response.tools_used:
         answer += f"\n\n---\n🔧 *Tools: {', '.join(sorted(set(response.tools_used)))}*"
-    return reply(answer, "ok", input_tokens=getattr(response, "input_tokens", 0),
-                 output_tokens=getattr(response, "output_tokens", 0))
+    in_tok, out_tok = getattr(response, "input_tokens", 0), getattr(response, "output_tokens", 0)
+    qa_service.budget.add(estimate_cost_usd(in_tok, out_tok))
+    return reply(answer, "ok", input_tokens=in_tok, output_tokens=out_tok)
 
 
 def reset_chat():

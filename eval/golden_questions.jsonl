@@ -39,7 +39,7 @@
 {"question": "Berapa jumlah kartu kredit BCA (dalam ribuan) pada 2023?", "company": "BBCA", "year": 2023, "relevant_pages": [19], "expected": ["4.634"], "category": "tata_kelola"}
 {"question": "Berapa dividen tunai per saham yang dibagikan BCA dari laba tahun buku 2022?", "company": "BBCA", "year": 2023, "relevant_pages": [21, 278, 682], "expected": ["205"], "category": "tata_kelola"}
 {"question": "Berapa saldo kas BCA per 31 Desember 2023 di laporan posisi keuangan konsolidasian?", "company": "BBCA", "year": 2023, "relevant_pages": [158, 159, 168, 576], "expected": ["21.701.514"], "category": "laporan_keuangan"}
-{"question": "Berapa giro pada Bank Indonesia per 31 Desember 2023?", "company": "BBCA", "year": 2023, "relevant_pages": [236, 237, 576, 583], "expected": ["92.617.705"], "category": "laporan_keuangan"}
+{"question": "Berapa giro pada Bank Indonesia di laporan posisi keuangan konsolidasian per 31 Desember 2023?", "company": "BBCA", "year": 2023, "relevant_pages": [236, 237, 576, 583], "expected": ["92.617.705"], "category": "laporan_keuangan"}
 {"question": "Berapa cadangan kerugian penurunan nilai kredit yang diberikan per 31 Desember 2023?", "company": "BBCA", "year": 2023, "relevant_pages": [576, 640, 641, 642], "expected": ["33.308.875"], "category": "laporan_keuangan"}
 {"question": "Berapa jumlah liabilitas BCA di laporan posisi keuangan konsolidasian 2023?", "company": "BBCA", "year": 2023, "relevant_pages": [577, 696], "expected": ["1.157.675.545"], "category": "laporan_keuangan"}
 {"question": "Berapa lembar saham BCA yang ditempatkan dan disetor penuh?", "company": "BBCA", "year": 2023, "relevant_pages": [21, 46, 99, 577], "expected": ["123.275.050.000"], "category": "laporan_keuangan"}

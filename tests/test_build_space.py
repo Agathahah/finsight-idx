@@ -35,6 +35,7 @@ def test_bundle_contents(tmp_path):
     assert not any("__pycache__" in f or f.endswith(".DS_Store") for f in files)
     readme = (out / "README.md").read_text()
     assert readme.startswith("---\ntitle: FinSight IDX") and "sdk_version: 6.12.0" in readme
+    assert 'python_version: "3.12"' in readme
     assert "BBCA 2023 (10,953 chunks, 747 pages, OCR on 1 pages)" in readme
 
 
