@@ -29,6 +29,7 @@ from src.rag.manifest import check_compatible  # noqa: E402
 
 DEFAULT_SPACE = "Agatha1911/finsight-idx"
 GRADIO_VERSION = "6.12.0"
+PYTHON_VERSION = "3.12"   # Spaces default to 3.10; pandas 3 and numpy 2.5 need newer
 IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store")
 
 SPACE_README = """---
@@ -38,6 +39,7 @@ colorFrom: green
 colorTo: blue
 sdk: gradio
 sdk_version: {gradio}
+python_version: "{python}"
 app_file: app.py
 pinned: false
 license: mit
@@ -83,7 +85,7 @@ def build(out: Path, persist_dir: Path) -> dict:
     status = "Indexed: " + "; ".join(
         f"{d['company']} {d['year']} ({d['total_chunks']:,} chunks, {d['total_pages']} pages, "
         f"OCR on {len(d.get('pages_ocr', []))} pages)" for d in docs)
-    (out / "README.md").write_text(SPACE_README.format(gradio=GRADIO_VERSION, status=status), encoding="utf-8")
+    (out / "README.md").write_text(SPACE_README.format(gradio=GRADIO_VERSION, python=PYTHON_VERSION, status=status), encoding="utf-8")
     return manifest
 
 
