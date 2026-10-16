@@ -175,7 +175,7 @@ Operate it:
 ```bash
 python -m src.serving.telemetry logs/queries.jsonl     # p50/p95 latency, error rate, cost
 python scripts/build_space.py                           # dry run: build/space + checks
-python scripts/build_space.py --push --set-config --wait   # deploy and wait until the Space runs
+python scripts/build_space.py --check-deps --push --set-config --wait   # check deps, deploy, wait until the Space runs
 python scripts/smoke_test.py Agatha1911/finsight-idx --paid  # guardrails + one real question on the live Space
 python scripts/update_readme_eval.py                    # refresh the answer table from reports/
 docker build -t finsight-idx . && docker run --rm -p 7860:7860 --env-file .env finsight-idx

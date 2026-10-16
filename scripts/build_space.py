@@ -5,6 +5,7 @@
     python scripts/build_space.py --push --set-config      # also set Space variables
     python scripts/build_space.py --push --set-api-key     # also store ANTHROPIC_API_KEY as a secret
     python scripts/build_space.py --wait                   # only wait for the Space to finish building
+    python scripts/build_space.py --check-deps             # dry-run the Space's pip install (needs network)
 
 The old Space was uploaded by hand: it carried __pycache__, .DS_Store and an
 index built by the buggy chunker. This script uploads exactly the files the
@@ -17,6 +18,7 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -87,6 +89,27 @@ def build(out: Path, persist_dir: Path) -> dict:
         f"OCR on {len(d.get('pages_ocr', []))} pages)" for d in docs)
     (out / "README.md").write_text(SPACE_README.format(gradio=GRADIO_VERSION, python=PYTHON_VERSION, status=status), encoding="utf-8")
     return manifest
+
+
+def space_pip_command(requirements: Path) -> list[str]:
+    """The pip command the Spaces gradio builder runs (taken from a build log, Oct 2026)."""
+    return [sys.executable, "-m", "pip", "install", "--dry-run", "--ignore-installed", "--quiet",
+            "-r", str(requirements), f"gradio[oauth,mcp]=={GRADIO_VERSION}",
+            "uvicorn>=0.14.0", "websockets>=10.4", "spaces"]
+
+
+def check_dependencies(out: Path) -> None:
+    """Fail before uploading when the Space's pip install cannot resolve.
+
+    The first deploy of v4 failed with BUILD_ERROR after 41 s: fastmcp 4.1 needs
+    mcp>=2 while gradio[mcp] needs mcp<2. A local dry run finds that in a minute.
+    """
+    print("Checking that the Space's pip install resolves (dry run) ...")
+    result = subprocess.run(space_pip_command(out / "requirements.txt"), capture_output=True, text=True)
+    if result.returncode != 0:
+        tail = "\n".join((result.stdout + result.stderr).strip().splitlines()[-15:])
+        sys.exit(f"Dependency check failed; the Space build would fail too:\n{tail}")
+    print("Dependencies resolve.")
 
 
 def summarize(out: Path) -> None:
@@ -165,6 +188,7 @@ def main() -> None:
     ap.add_argument("--set-config", action="store_true")
     ap.add_argument("--set-api-key", action="store_true")
     ap.add_argument("--wait", action="store_true", help="wait until the Space is RUNNING")
+    ap.add_argument("--check-deps", action="store_true", help="dry-run the Space's pip install first")
     args = ap.parse_args()
 
     try:
@@ -179,6 +203,8 @@ def main() -> None:
     out = Path(args.out)
     manifest = build(out, Path(args.persist_dir))
     summarize(out)
+    if args.check_deps:
+        check_dependencies(out)
     if args.push:
         push(out, args.space, args.set_config, args.set_api_key, manifest)
         if args.wait:
