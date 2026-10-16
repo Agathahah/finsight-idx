@@ -105,19 +105,32 @@ Two harnesses, both run against the real index and a golden set whose pages and 
 | `src/rag/eval_retrieval.py` | Does the right page reach the model? recall@5 and MRR, hybrid vs. semantic-only | `python -m src.rag.eval_retrieval eval/golden_questions.jsonl --k 5` |
 | `src/rag/eval_answers.py` | Is the answer's figure right, is the cited page right, does it refuse when the report has no answer? | `python -m src.rag.eval_answers eval/golden_questions.jsonl --limit 20` |
 
-Results (BBCA annual report 2023, index schema v2):
+Golden set: 58 questions (53 answerable, 5 that must be refused) in six groups: financial highlights, ratios, management narrative, governance, financial statements and scanned pages. Questions were drafted with Claude from the PDF text; every figure and page was checked by the author against the PDF and the index (`eval/golden_questions.jsonl`).
 
-| Retriever | recall@5 (page) | MRR | context hit@5 |
-|---|---|---|---|
-| Hybrid (embeddings + BM25, RRF) | _run and fill in_ | | |
-| Semantic only | | | |
+Retrieval, k = 5, 53 answerable questions, 95% Wilson intervals in brackets:
+
+| Index | Retriever | recall@5 (page) | MRR | context hit@5 |
+|---|---|---|---|---|
+| v2 (audit chunker) | Hybrid | 0.30 | 0.13 | – |
+| v2 | Semantic only | 0.15 | 0.06 | – |
+| **v3** (no gaps, contextual headers) | **Hybrid** | **0.40** [0.28, 0.53] | **0.17** | **0.45** [0.33, 0.59] |
+| v3 | Semantic only | 0.15 [0.08, 0.27] | 0.07 | 0.21 [0.12, 0.33] |
+
+*Page recall* counts a hit when a retrieved chunk is on a labelled page. *Context hit* counts a hit when the expected figure appears anywhere in the five chunks, whatever the page.
+
+What the numbers say:
+- Hybrid beats semantic-only on the same questions: 13 questions are found only by hybrid, none only by semantic (McNemar exact p < 0.001). BM25 matters for financial terms the multilingual MiniLM does not separate well.
+- Narrative and financial-statement questions do best (6 of 10 pages found). Single figures from the highlight tables do worst (3 of 10): the retriever prefers the management-discussion pages that talk *about* total assets or net interest income over the table row that holds the number.
+- Fixing the chunker (row 14 of the audit) moved page recall from 0.30 to 0.40. The next step targets the table problem directly (see "Next experiments").
 
 | Answer metric | Value |
 |---|---|
-| Answer accuracy | _run and fill in_ |
+| Answer accuracy | _pending: run after the table-row experiment_ |
 | Citation accuracy | |
 | Correct refusals (unanswerable questions) | |
 | Mean latency / cost per question | |
+
+Next experiments, each measured on the same golden set: (1) index each table row as its own chunk with its label, unit and year columns; (2) re-rank the top 20 with a multilingual cross-encoder; (3) a multilingual embedding model with a longer input limit than MiniLM's 128 tokens.
 
 Raw reports are saved in `reports/`.
 
