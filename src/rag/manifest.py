@@ -23,7 +23,9 @@ from loguru import logger
 # Bump when chunking, extraction or metadata change in a way that needs a re-index.
 #   1: original chunker (near-duplicate chunks, broken page numbers)
 #   2: fixed chunker, header/footer removal, OCR fallback, `extraction` metadata
-INDEX_SCHEMA_VERSION = 2
+#   3: line-aware chunker without gaps (v2 skipped 1.8% of the text), chunks
+#      prefixed with section, page, unit and year columns
+INDEX_SCHEMA_VERSION = 3
 MANIFEST_NAME = "index_manifest.json"
 
 

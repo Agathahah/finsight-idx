@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import Optional
 
 
 def load_golden(path: str | Path) -> list[dict]:
@@ -47,6 +48,22 @@ def reciprocal_rank(flags: list[bool]) -> float:
     return 0.0
 
 
+def context_hit(chunks, item: dict, k: int) -> Optional[bool]:
+    """Do the top-k chunks, read together, contain every expected value?
+
+    Page labels are strict: a figure such as total assets is printed on ten
+    pages, and a labeller lists a few. Context hit asks the question that
+    matters for generation instead: did the model receive the answer?
+    Short values (for example "1,9") can also match unrelated text, so this
+    metric is reported next to page recall, not instead of it.
+    """
+    expected = item.get("expected")
+    if not expected:
+        return None
+    from src.rag.eval_answers import contains_expected
+    return contains_expected(" ".join(c.text for c in chunks[:k]), expected)
+
+
 def evaluate(retrieve_fn, golden: list[dict], k: int = 5) -> dict:
     """``retrieve_fn(question, item) -> list[RetrievedChunk]``"""
     per_q = []
@@ -54,14 +71,18 @@ def evaluate(retrieve_fn, golden: list[dict], k: int = 5) -> dict:
         chunks = retrieve_fn(item["question"], item)
         flags = [is_relevant(c, item) for c in chunks]
         per_q.append({"question": item["question"], "recall_at_k": recall_at_k(flags, k),
-                      "rr": reciprocal_rank(flags)})
+                      "rr": reciprocal_rank(flags), "context_hit": context_hit(chunks, item, k),
+                      "pages": [c.page_number for c in chunks[:k]]})
     n = max(len(per_q), 1)
+    hits = [q["context_hit"] for q in per_q if q["context_hit"] is not None]
     return {
         "questions": len(per_q),
         "k": k,
         "recall_at_k": round(sum(q["recall_at_k"] for q in per_q) / n, 4),
         "mrr": round(sum(q["rr"] for q in per_q) / n, 4),
+        "context_hit_at_k": round(sum(hits) / len(hits), 4) if hits else None,
         "misses": [q["question"] for q in per_q if q["recall_at_k"] == 0],
+        "per_question": per_q,
     }
 
 
@@ -86,9 +107,10 @@ def main() -> None:
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     print(json.dumps(report, indent=2, ensure_ascii=False))
-    print("\n| Retriever | recall@{k} | MRR |\n|---|---|---|".format(k=args.k))
+    print("\n| Retriever | recall@{k} (page) | MRR | context hit@{k} |\n|---|---|---|---|".format(k=args.k))
     for name, r in report.items():
-        print(f"| {name} | {r['recall_at_k']:.2f} | {r['mrr']:.2f} |")
+        hit = "–" if r["context_hit_at_k"] is None else f"{r['context_hit_at_k']:.2f}"
+        print(f"| {name} | {r['recall_at_k']:.2f} | {r['mrr']:.2f} | {hit} |")
     print(f"\nSaved to {args.out}")
 
 

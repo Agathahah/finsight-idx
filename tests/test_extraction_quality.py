@@ -110,6 +110,7 @@ def test_chunks_from_ocr_pages_are_marked():
                                                      SimpleNamespace(page_number=11, source="ocr")])
     chunks = rag._build_chunks(doc, "d", "BBCA", 2023, "x.pdf")
     assert {c.page_number: c.extraction for c in chunks} == {10: "text", 11: "ocr"}
+    assert chunks[0].text.startswith("[Laporan Auditor · hal. 10]\n")
     assert chunks[-1].to_metadata()["extraction"] == "ocr"
     cited = RetrievedChunk(chunk_id="1", text="t", page_number=11, section_title="", section_type="",
                            source_file="x.pdf", company="BBCA", year=2023, extraction="ocr")
@@ -162,3 +163,15 @@ def test_changing_settings_with_other_documents_present_is_refused(tmp_path):
 def test_reindexing_the_only_document_may_change_settings(tmp_path):
     _record(tmp_path, doc_id="a")
     assert _record(tmp_path, doc_id="a", size=512)["chunk_size"] == 512
+
+
+def test_page_context_describes_tables_only():
+    from src.rag.indexer import contextual_text, page_context
+    table = ("Ikhtisar Data Keuangan\n(dalam miliar Rupiah) 2023 2022 2021\nTotal Aset 1.408.107 1.314.732\n"
+             + "baris\n" * 20 + "Jumlah Rekening (dalam ribuan) 37.632")
+    assert page_context(table) == "dalam miliar Rupiah · kolom 2023 2022 2021"
+    assert page_context("Pada tahun 2023 laba naik. Target 2023 tercapai.") == ""
+    assert page_context("(Dalam jutaanRupiah, kecuali dinyatakan lain)\n2023 2022") == \
+        "Dalam jutaan Rupiah, kecuali dinyatakan lain · kolom 2023 2022"
+    assert contextual_text("Total Aset 1.408.107", "Ikhtisar Data Keuangan", 18, "dalam miliar Rupiah") == \
+        "[Ikhtisar Data Keuangan · hal. 18 · dalam miliar Rupiah]\nTotal Aset 1.408.107"

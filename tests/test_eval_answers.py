@@ -68,3 +68,35 @@ def test_example_files_parse():
     from src.rag.eval_retrieval import load_golden as load_retrieval
     assert len(ea.load_golden("eval/golden_answers.example.jsonl")) == 3
     assert len(load_retrieval("eval/golden_answers.example.jsonl")) == 2
+
+
+def test_errors_are_recorded_and_the_run_continues():
+    golden = [{"question": q, "relevant_pages": [1], "expected": ["7"]} for q in "abcd"]
+    def ask(it):
+        if it["question"] == "b":
+            raise TimeoutError("slow")
+        return _resp("7 [hal. 1]")
+    r = ea.evaluate(ask, golden)
+    assert r["questions"] == 3 and r["answer_accuracy"] == 1.0
+    assert r["errors"][0]["error"].startswith("TimeoutError")
+
+
+def test_setup_errors_stop_the_run_early():
+    golden = [{"question": str(i), "relevant_pages": [1], "expected": ["7"]} for i in range(10)]
+    calls = []
+    def ask(it):
+        calls.append(1)
+        raise RuntimeError("401 invalid x-api-key")
+    with pytest.raises(ea.EvalAborted, match="401"):
+        ea.evaluate(ask, golden)
+    assert len(calls) == 3
+
+
+def test_context_hit_counts_answer_anywhere_in_top_k():
+    from types import SimpleNamespace as NS
+    from src.rag.eval_retrieval import evaluate as ev_retrieval
+    golden = [{"question": "q", "relevant_pages": [18], "expected": ["1.408.107"]}]
+    chunks = [NS(text="lain", page_number=5, company="", year=0),
+              NS(text="Total Aset 1.408.107", page_number=158, company="", year=0)]
+    r = ev_retrieval(lambda q, it: chunks, golden, k=5)
+    assert r["recall_at_k"] == 0.0 and r["context_hit_at_k"] == 1.0
