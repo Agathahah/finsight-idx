@@ -237,6 +237,23 @@ def compare_emitens(
 # Gradio UI
 # ============================================================================
 
+def example_buttons(label: str, examples: list[list], inputs: list, titles: list[str]) -> None:
+    """Buttons that fill the inputs, used instead of gr.Examples.
+
+    With Gradio 6.12, gr.Examples in an app with three or more tabs sends the
+    browser into an endless re-render (svelte "effect_update_depth_exceeded")
+    when the user switches tabs: the page freezes and the tab stays empty.
+    Reproduced with a 3-tab app in headless Chromium; plain buttons do not
+    trigger it (tests/test_app_ui.py keeps gr.Examples out of the app).
+    """
+    gr.Markdown(f"<sub>{label}</sub>")
+    with gr.Row():
+        for title, values in zip(titles, examples):
+            filled = tuple(values) if len(inputs) > 1 else values[0]
+            gr.Button(title, size="sm", variant="secondary").click(
+                lambda filled=filled: filled, outputs=inputs, queue=False, api_name=False)
+
+
 THEME = gr.themes.Base(
     primary_hue="emerald",
     secondary_hue="teal",
@@ -353,15 +370,16 @@ with gr.Blocks(title="FinSight IDX") as demo:
                         r_aset    = gr.Number(label="Total Aset (Miliar Rp)", value=1408000)
                         r_pendapatan = gr.Number(label="Pendapatan (Miliar Rp)", value=149200)
 
-                    gr.Examples(
-                        examples=[
+                    example_buttons(
+                        "Contoh data: klik untuk isi otomatis",
+                        [
                             ["BBCA", 9500, 485, 2089, 48600, 210000, 900000, 1408000, 149200],
                             ["BBRI", 5500, 320, 1850, 60400, 332000, 1200000, 1900000, 213000],
                             ["BMRI", 6200, 410, 2100, 55100, 280000, 1100000, 2174000, 178000],
                         ],
-                        inputs=[r_emiten, r_harga, r_eps, r_bvps, r_laba,
-                                r_ekuitas, r_hutang, r_aset, r_pendapatan],
-                        label="Contoh Data — Klik untuk isi otomatis",
+                        [r_emiten, r_harga, r_eps, r_bvps, r_laba,
+                         r_ekuitas, r_hutang, r_aset, r_pendapatan],
+                        ["BBCA", "BBRI", "BMRI"],
                     )
                     btn_rasio = gr.Button("⚡ Hitung Rasio", variant="primary", size="lg")
 
@@ -401,15 +419,16 @@ with gr.Blocks(title="FinSight IDX") as demo:
                             label="Filter Tahun (opsional)",
                             placeholder="2023", max_lines=1
                         )
-                    gr.Examples(
-                        examples=[
+                    example_buttons(
+                        "Contoh pertanyaan",
+                        [
                             ["Berapa laba bersih BCA tahun 2023?", "BBCA", "2023"],
                             ["Apa saja risiko utama yang dihadapi BCA?", "BBCA", "2023"],
                             ["Bagaimana target pertumbuhan kredit BCA 2024?", "BBCA", "2023"],
                             ["Berapa rasio CAR BCA dan apa artinya?", "BBCA", "2023"],
                         ],
-                        inputs=[rag_query, rag_emiten, rag_year],
-                        label="Contoh Pertanyaan",
+                        [rag_query, rag_emiten, rag_year],
+                        ["Laba bersih 2023", "Risiko utama", "Target kredit 2024", "Rasio CAR"],
                     )
                     btn_rag = gr.Button("🔍 Cari Jawaban", variant="primary", size="lg")
 
@@ -424,7 +443,9 @@ with gr.Blocks(title="FinSight IDX") as demo:
                 inputs=[rag_query, rag_emiten, rag_year],
                 outputs=out_rag,
             )
-            index_status = gr.Markdown()
+            # Rendered once at start-up: the manifest does not change while the app runs.
+            # (Filling it with demo.load() froze tab switching in Gradio 6.12.)
+            gr.Markdown(f"<sub>{qa_service.status()}</sub>")
 
         # ── Tab 3: Agent Chat ───────────────────────────────────────────────
         with gr.Tab("🤖 Analyst Agent"):
@@ -449,14 +470,15 @@ with gr.Blocks(title="FinSight IDX") as demo:
 
             btn_clear = gr.Button("🗑️ Reset Conversation", size="sm")
 
-            gr.Examples(
-                examples=[
+            example_buttons(
+                "Contoh pertanyaan",
+                [
                     ["Hitung PER dan ROE BBCA: harga Rp 9500, EPS Rp 485, laba bersih Rp 48600 miliar, ekuitas Rp 210000 miliar"],
                     ["Bandingkan BBCA dan BBRI: BBCA ROE 23.5%, DER 4.2x — BBRI ROE 18.2%, DER 5.1x"],
                     ["Analisis valuasi BMRI: harga Rp 6200, EPS Rp 410, book value Rp 2100 per saham"],
                 ],
-                inputs=chat_input,
-                label="Contoh Pertanyaan",
+                [chat_input],
+                ["PER & ROE BBCA", "BBCA vs BBRI", "Valuasi BMRI"],
             )
 
             agent_state = gr.State([])
@@ -505,16 +527,17 @@ with gr.Blocks(title="FinSight IDX") as demo:
             btn_compare = gr.Button("⚡ Bandingkan", variant="primary", size="lg")
             out_compare = gr.Markdown(value="*Isi data kedua emiten, lalu klik Bandingkan.*")
 
-            gr.Examples(
-                examples=[
+            example_buttons(
+                "Contoh perbandingan",
+                [
                     ["BBCA", 23.5, 4.2, 32.6, 485, 19.5, 9500,
                      "BBRI", 18.2, 5.1, 28.4, 320, 17.5, 5500],
                     ["BMRI", 19.8, 5.5, 30.9, 410, 33.6, 6200,
                      "BBNI", 13.5, 5.5, 21.3, 280, 14.2, 5400],
                 ],
-                inputs=[c_kode_a, c_roe_a, c_der_a, c_npm_a, c_eps_a, c_growth_a, c_harga_a,
-                        c_kode_b, c_roe_b, c_der_b, c_npm_b, c_eps_b, c_growth_b, c_harga_b],
-                label="Contoh Perbandingan",
+                [c_kode_a, c_roe_a, c_der_a, c_npm_a, c_eps_a, c_growth_a, c_harga_a,
+                 c_kode_b, c_roe_b, c_der_b, c_npm_b, c_eps_b, c_growth_b, c_harga_b],
+                ["BBCA vs BBRI", "BMRI vs BBNI"],
             )
 
             btn_compare.click(
@@ -539,7 +562,6 @@ Data Scientist, Bank Indonesia Institute |
         sanitize_html=False,
     )
 
-    demo.load(lambda: f"<sub>{qa_service.status()}</sub>", outputs=index_status)
 
 
 if __name__ == "__main__":
