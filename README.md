@@ -130,6 +130,15 @@ What the numbers say:
 **Answers.** Same golden set, Claude Sonnet 4.5, scored automatically: a figure counts as correct when its value matches the expected one in any scale (juta, miliar, triliun) within rounding; a citation counts as correct when the cited page is a labelled page or contains the expected figure. The table is generated from `reports/` by `scripts/update_readme_eval.py`.
 
 <!-- answer-table:start -->
+| Answer metric | v4 · hybrid · k = 5 | v4 · BM25 · k = 10 (deployed) |
+|---|---|---|
+| Questions scored | 57 | 58 |
+| Answer accuracy (answerable) | 65% | 79% |
+| Citation accuracy | 87% | 91% |
+| False refusals (answerable, but model said not found) | 21% | 15% |
+| Correct refusals (unanswerable) | 100% | 100% |
+| Mean latency | 4.5 s | 4.9 s |
+| Cost per question | $0.0063 | $0.0094 |
 <!-- answer-table:end -->
 
 Next experiments, each measured on the same golden set: (1) re-rank the top 20 with a multilingual cross-encoder; (2) a multilingual embedding model with a longer input limit than MiniLM's 128 tokens, to see whether hybrid can beat BM25; (3) query expansion for governance questions (names, roles).
