@@ -24,7 +24,7 @@ from loguru import logger
 
 from src.api.client import get_client, sampling_kwargs
 from src.rag.retriever import RAGRetriever, RetrievedChunk
-from src.config import claude_model
+from src.config import claude_model, retrieval_settings
 
 
 # ---------------------------------------------------------------------------
@@ -154,8 +154,9 @@ class FinancialQAChain:
             max_context_chars: Max characters of context sent to Claude.
         """
         self.model = model or claude_model()
-        self.top_k = top_k or int(os.getenv("RAG_TOP_K", "5"))
-        self.retrieval_mode = (retrieval_mode or os.getenv("RETRIEVAL_MODE", "hybrid")).lower()
+        env_mode, env_top_k = retrieval_settings()
+        self.top_k = top_k or env_top_k
+        self.retrieval_mode = (retrieval_mode or env_mode).lower()
         if self.retrieval_mode not in {"hybrid", "bm25"}:
             raise ValueError("retrieval_mode must be 'hybrid' or 'bm25'")
         self.max_context_chars = max_context_chars

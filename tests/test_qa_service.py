@@ -137,3 +137,31 @@ def test_daily_budget_blocks_api_calls_once_spent(tmp_path):
     assert "## Jawaban" in first and second.startswith("⏳ Kuota harian")
     assert len(chain.calls) == 1
     assert [r["status"] for r in _log(tmp_path)] == ["ok", "budget_exhausted"]
+
+
+def _two_banks(tmp_path):
+    from src.rag.manifest import record_document
+    for doc, company in (("a", "BBCA"), ("b", "BBRI")):
+        record_document(tmp_path, doc, {"company": company, "year": 2023, "total_chunks": 1, "total_pages": 1},
+                        embed_model="m", chunk_size=256, chunk_overlap=64)
+
+
+def test_several_banks_require_a_ticker(tmp_path):
+    _two_banks(tmp_path)
+    svc, chain = _service(tmp_path)
+    out = svc.ask("Berapa laba bersih tahun 2023?")
+    assert "BBCA, BBRI" in out and not chain.calls
+    assert _log(tmp_path)[-1]["error_type"] == "company_required"
+
+
+def test_unknown_ticker_is_named(tmp_path):
+    _two_banks(tmp_path)
+    svc, chain = _service(tmp_path)
+    assert "BMRI belum terindeks" in svc.ask("Berapa laba bersih tahun 2023?", "BMRI") and not chain.calls
+
+
+def test_indexed_ticker_reaches_the_chain(tmp_path):
+    _two_banks(tmp_path)
+    svc, chain = _service(tmp_path)
+    svc.ask("Berapa laba bersih tahun 2023?", "bbri", "2023")
+    assert chain.calls[-1]["company_filter"] == "BBRI"

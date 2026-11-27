@@ -7,7 +7,7 @@
 [![Claude API](https://img.shields.io/badge/Claude_API-Anthropic-D97706)](https://www.anthropic.com/)
 [![FastMCP](https://img.shields.io/badge/FastMCP-MCP_Server-6366F1)](https://gofastmcp.com/)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-22C55E)](https://docs.trychroma.com/)
-[![Tests](https://img.shields.io/badge/unit_tests-206-22C55E)](tests/)
+[![Tests](https://img.shields.io/badge/unit_tests-232-22C55E)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Agathahah/finsight-idx/blob/main/notebooks/demo_finsight.ipynb)
 
@@ -17,7 +17,7 @@
 
 FinSight IDX is an **end-to-end NLP intelligence platform** for Indonesian capital markets (IDX/BEI). It covers the full workflow from raw PDF ingestion to an MCP-connected analyst agent.
 
-**Status: research prototype.** It runs locally and in a Gradio demo; it has no authentication, monitoring or load testing, and its retrieval quality has not yet been measured on a labelled question set (see *Audit*).
+**Status: live demo on Hugging Face Spaces.** Input validation, per-visitor and global rate limits, a daily cost cap, an index version check, per-query telemetry and answer feedback (👍/👎). On a 58-question golden set checked by hand against the PDF, BM25 top-10 answers 79% of the answerable questions correctly and cites the right page 91% of the time. One annual report is indexed (BBCA 2023).
 
 ---
 
@@ -235,7 +235,7 @@ cat data/vectorstore/index_manifest.json      # schema version, OCR pages, empty
 ```bash
 python -c "import anthropic; print('✅ SDK:', anthropic.__version__)"
 python -c "import chromadb; print('✅ ChromaDB:', chromadb.__version__)"
-PYTHONPATH=. pytest tests/ -q  # 206 unit tests (API calls are mocked)
+PYTHONPATH=. pytest tests/ -q  # 232 unit tests (API calls are mocked)
 python scripts/check_model.py  # real API call: confirms CLAUDE_MODEL exists for your key
 ```
 
@@ -339,7 +339,7 @@ finsight-idx/
 ├── eval/                   # golden sets (hand-labelled)
 ├── app.py                  # Gradio demo (Hugging Face Space)
 ├── Dockerfile
-├── tests/                  # 206 unit tests (Claude API mocked)
+├── tests/                  # 232 unit tests (Claude API mocked)
 ├── notebooks/
 │   └── demo_finsight.ipynb # Interactive demo (Colab-ready)
 ├── data/
@@ -361,14 +361,14 @@ finsight-idx/
 
 **Serving:** FastMCP (MCP Server)
 
-**Quality:** pytest (206 unit tests) · ruff · rouge-score · GitHub Actions
+**Quality:** pytest (232 unit tests) · ruff · rouge-score · GitHub Actions
 
 ---
 
 ## 🧪 Running Tests
 
 ```bash
-PYTHONPATH=. pytest tests/ -v        # All 206 tests
+PYTHONPATH=. pytest tests/ -v        # All 232 tests
 PYTHONPATH=. pytest tests/ --cov=src  # With coverage
 ```
 

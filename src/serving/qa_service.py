@@ -111,6 +111,12 @@ class QAService:
         except Exception:
             pass  # already logged; requests will report it
 
+    def indexed_companies(self) -> list[str]:
+        """Tickers in the index manifest, sorted; empty when there is no manifest."""
+        from src.rag.manifest import load_manifest
+        m = load_manifest(self.persist_dir) or {}
+        return sorted({str(d.get("company", "")).upper() for d in (m.get("documents") or {}).values()} - {""})
+
     def status(self) -> str:
         from src.rag.manifest import load_manifest
         m = load_manifest(self.persist_dir)
@@ -123,7 +129,10 @@ class QAService:
                 f"{d.get('company')} {d.get('year')}: {d.get('total_chunks'):,} chunk dari "
                 f"{d.get('total_pages')} halaman (OCR {ocr} hlm), dibangun {d.get('indexed_at', '')[:10]}"
             )
-        return "Index v{} · {} · {}".format(m.get("schema_version"), m.get("embed_model"), "; ".join(parts))
+        from src.config import retrieval_settings
+        mode, top_k = retrieval_settings()
+        return "Index v{} · {} · {} · retrieval {} top-{}".format(
+            m.get("schema_version"), m.get("embed_model"), "; ".join(parts), mode, top_k)
 
     def ask(self, question, ticker=None, year=None, client_key: str = "anonymous") -> str:
         rid = new_request_id()
@@ -141,6 +150,16 @@ class QAService:
         except InvalidQuestion as exc:
             log("rejected", error_type="invalid_input")
             return f"⚠️ {exc}"
+
+        # With several reports indexed, an unfiltered question mixes banks
+        # ("laba bersih 2023" exists in every report), so ask for the ticker.
+        companies = self.indexed_companies()
+        if t is None and len(companies) > 1:
+            log("rejected", error_type="company_required")
+            return f"⚠️ Ada {len(companies)} emiten terindeks ({', '.join(companies)}). Isi Filter Emiten dulu."
+        if t is not None and companies and t not in companies:
+            log("rejected", error_type="company_not_indexed")
+            return f"⚠️ {t} belum terindeks. Tersedia: {', '.join(companies)}."
 
         allowed, wait = self.limiter.allow(client_key)
         if not allowed:
