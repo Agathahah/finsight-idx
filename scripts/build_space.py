@@ -27,6 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from src.rag.indexer import DEFAULT_EMBED_MODEL  # noqa: E402
+from src.config import retrieval_settings  # noqa: E402
 from src.rag.manifest import check_compatible  # noqa: E402
 
 DEFAULT_SPACE = "Agatha1911/finsight-idx"
@@ -51,7 +52,8 @@ short_description: RAG Q&A over IDX annual reports with page citations
 # FinSight IDX
 
 Ask questions about an Indonesian annual report and get answers with page
-citations. Built with hybrid retrieval (multilingual embeddings + BM25) and Claude.
+citations. Built with BM25 retrieval over the report pages (hybrid with multilingual
+embeddings is available) and Claude.
 
 {status}
 
@@ -128,10 +130,10 @@ def push(out: Path, space: str, set_config: bool, set_api_key: bool, manifest: d
     from huggingface_hub import HfApi
     api = HfApi()
     print(f"Logged in as {api.whoami()['name']}; uploading to spaces/{space} ...")
+    mode, top_k = retrieval_settings()
     commit = api.upload_folder(
         folder_path=str(out), repo_id=space, repo_type="space",
-        commit_message=f"Deploy: index schema v{manifest['schema_version']}, "
-                       f"retrieval {os.getenv('RETRIEVAL_MODE', 'hybrid')} top-{os.getenv('RAG_TOP_K', '5')}",
+        commit_message=f"Deploy: index schema v{manifest['schema_version']}, retrieval {mode} top-{top_k}",
         delete_patterns=["*"],   # remove files that are no longer part of the app
     )
     print("Uploaded:", commit)
@@ -139,8 +141,8 @@ def push(out: Path, space: str, set_config: bool, set_api_key: bool, manifest: d
         variables = {**VARIABLES,
                      "CLAUDE_MODEL": os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5"),
                      # retrieval settings chosen from the golden-set evaluation (README)
-                     "RAG_TOP_K": os.getenv("RAG_TOP_K", "5"),
-                     "RETRIEVAL_MODE": os.getenv("RETRIEVAL_MODE", "hybrid")}
+                     "RAG_TOP_K": str(top_k),
+                     "RETRIEVAL_MODE": mode}
         for k, v in variables.items():
             api.add_space_variable(space, k, v)
         print("Variables set:", ", ".join(f"{k}={v}" for k, v in variables.items()))

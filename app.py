@@ -53,8 +53,29 @@ except ImportError:
 
 # ── Production request path (validation, rate limit, logging) ───────────────
 from src.serving.guard import InvalidQuestion, validate_question
+from src.serving.feedback import record_feedback
 from src.serving.qa_service import BUDGET_MESSAGE, QAService, client_key_from_request, trim_agent_history
 from src.serving.telemetry import estimate_cost_usd, log_query, new_request_id
+
+# ── Telemetry that survives Space restarts ──────────────────────────────────
+# Set TELEMETRY_DATASET (variable) and HF_TOKEN (secret, write access to that
+# dataset only) on the Space. Each process writes its own files and the scheduler
+# pushes logs/ to the private dataset every 10 minutes. A restarted Space starts
+# with an empty logs/, so a shared file name would overwrite the history on the Hub.
+TELEMETRY_DATASET = os.getenv("TELEMETRY_DATASET")
+if TELEMETRY_DATASET:
+    import uuid
+
+    from huggingface_hub import CommitScheduler
+
+    _run = uuid.uuid4().hex[:8]
+    os.environ.setdefault("QUERY_LOG_PATH", f"logs/queries-{_run}.jsonl")
+    os.environ.setdefault("FEEDBACK_LOG_PATH", f"logs/feedback-{_run}.jsonl")
+    Path("logs").mkdir(exist_ok=True)
+    telemetry_scheduler = CommitScheduler(
+        repo_id=TELEMETRY_DATASET, repo_type="dataset", folder_path="logs",
+        path_in_repo="logs", every=10, private=True,
+    )
 
 PERSIST_DIR = os.getenv("VECTORSTORE_DIR", str(ROOT / "data" / "vectorstore"))
 qa_service = QAService(persist_dir=PERSIST_DIR)
@@ -412,8 +433,9 @@ with gr.Blocks(title="FinSight IDX") as demo:
                     )
                     with gr.Row():
                         rag_emiten = gr.Textbox(
-                            label="Filter Emiten (opsional)",
-                            placeholder="BBCA", max_lines=1
+                            label="Filter Emiten (wajib bila lebih dari satu emiten)",
+                            placeholder=", ".join(qa_service.indexed_companies()) or "BBCA",
+                            max_lines=1,
                         )
                         rag_year = gr.Textbox(
                             label="Filter Tahun (opsional)",
@@ -437,12 +459,18 @@ with gr.Blocks(title="FinSight IDX") as demo:
                         value="*Ketik pertanyaan di sebelah kiri, lalu klik Cari Jawaban.*",
                         label="Jawaban + Citations",
                     )
+                    with gr.Row():
+                        btn_up = gr.Button("👍 Jawaban membantu", size="sm", variant="secondary")
+                        btn_down = gr.Button("👎 Salah / kurang lengkap", size="sm", variant="secondary")
+                    fb_status = gr.Markdown()
 
             btn_rag.click(
                 ask_laporan,
                 inputs=[rag_query, rag_emiten, rag_year],
                 outputs=out_rag,
-            )
+            ).then(lambda: "", outputs=fb_status)
+            btn_up.click(lambda a: record_feedback(a, "up"), inputs=out_rag, outputs=fb_status)
+            btn_down.click(lambda a: record_feedback(a, "down"), inputs=out_rag, outputs=fb_status)
             # Rendered once at start-up: the manifest does not change while the app runs.
             # (Filling it with demo.load() froze tab switching in Gradio 6.12.)
             gr.Markdown(f"<sub>{qa_service.status()}</sub>")

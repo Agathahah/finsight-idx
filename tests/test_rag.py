@@ -418,3 +418,13 @@ def test_bm25_mode_and_top_k_from_environment(monkeypatch):
     monkeypatch.setenv("RETRIEVAL_MODE", "dense")
     with patch("src.rag.qa_chain.RAGRetriever"), pytest.raises(ValueError):
         FinancialQAChain(persist_dir="x")
+
+
+def test_retrieval_defaults_are_the_evaluated_winner(monkeypatch):
+    from unittest.mock import patch
+    from src.rag.qa_chain import FinancialQAChain
+    monkeypatch.delenv("RAG_TOP_K", raising=False)
+    monkeypatch.delenv("RETRIEVAL_MODE", raising=False)
+    with patch("src.rag.qa_chain.RAGRetriever"):
+        qa = FinancialQAChain(persist_dir="x")
+    assert (qa.retrieval_mode, qa.top_k) == ("bm25", 10)
